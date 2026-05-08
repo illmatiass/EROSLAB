@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EZRA — Brand Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --black-deep: #030303;
+    --red: #C0151A;
+    --red-dark: #8B0000;
+    --red-soft: #A01218;
+    --white: #F5F0EB;
+    --white-dim: #C8C0B8;
+    --grey: #1A1A1A;
+    --grey-mid: #2E2E2E;
+    --grey-light: #5A5A5A;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--black-deep);
+    color: var(--white);
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: #fff; color: #000; }
+    .cover { background: #000 !important; }
+    .no-print { display: none; }
+    section { break-inside: avoid; }
+  }
+
+  /* ── UTILITIES ── */
+  .red { color: var(--red); }
+  .dim { color: var(--white-dim); }
+  .mono { font-family: var(--font-mono); font-size: 0.78em; letter-spacing: 0.12em; }
+  .center { text-align: center; }
+  .upper { text-transform: uppercase; letter-spacing: 0.18em; }
+  .italic { font-style: italic; }
+
+  hr.rule {
+    border: none;
+    border-top: 1px solid var(--grey-mid);
+    margin: 3rem 0;
+  }
+  hr.rule-red {
+    border: none;
+    border-top: 1px solid var(--red-dark);
+    margin: 2rem 0;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2.5rem;
+  }
+  .container-wide {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2.5rem;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--black-deep);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 6rem;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--grey-mid);
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 10%, rgba(140,0,0,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(100,0,0,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .cover-noise {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .cover-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--grey-light);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding: 0 3rem;
+  }
+
+  .cover-title {
+    font-family: var(--font-display);
+    font-size: clamp(9rem, 18vw, 18rem);
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    padding: 0 2.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-title span {
+    color: var(--red);
+    display: inline;
+  }
+
+  .cover-subtitle-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 3rem;
+    margin-top: 2rem;
+    z-index: 1;
+    position: relative;
+  }
+
+  .cover-tagline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    font-weight: 300;
+    color: var(--white-dim);
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  .cover-meta {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--grey-light);
+    text-align: right;
+    line-height: 2;
+    text-transform: uppercase;
+  }
+
+  .cover-line {
+    width: 60px;
+    height: 1px;
+    background: var(--red);
+    margin: 1.5rem 3rem 0;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--grey-mid);
+  }
+
+  /* ── SECTION HEADINGS ── */
+  h1.display {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 7vw, 7rem);
+    letter-spacing: 0.02em;
+    line-height: 0.92;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+
+  h2.display {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    letter-spacing: 0.03em;
+    line-height: 0.95;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+
+  h3.serif {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--white);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  h4.mono-head {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  p {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--white-dim);
+    margin-bottom: 1.25rem;
+  }
+
+  p strong {
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  p em {
+    font-style: italic;
+    color: var(--white);
+  }
+
+  /* ── PULL QUOTES ── */
+  .pull-quote {
+    border-left: 2px solid var(--red);
+    padding: 1.5rem 2rem;
+    margin: 3rem 0;
+    background: rgba(192,21,26,0.04);
+  }
+  .pull-quote p {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 6rem 0;
+    border-bottom: 1px solid var(--grey);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-dark {
+    background: var(--black);
+  }
+
+  .section-grey {
+    background: var(--grey);
+  }
+
+  /* ── IMAGE PLACEHOLDER ── */
+  .img-placeholder {
+    width: 100%;
+    background: var(--grey);
+    border: 1px solid var(--grey-mid);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    margin: 2.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .img-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.015) 20px,
+      rgba(255,255,255,0.015) 21px
+    );
+  }
+  .img-placeholder .img-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+  }
+  .img-placeholder .img-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    margin-bottom: 0.5rem;
+  }
+  .img-placeholder .img-desc {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--grey-light);
+    max-width: 500px;
+    line-height: 1.6;
+  }
+  .img-placeholder.tall { min-height: 400px; }
+  .img-placeholder.short { min-height: 220px; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  .two-col-asym {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 680px) {
+    .two-col, .two-col-asym { grid-template-columns: 1fr; }
+  }
+
+  /* ── SPEC TABLE ── */
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+  }
+  .spec-table tr {
+    border-bottom: 1px solid var(--grey-mid);
+  }
+  .spec-table td {
+    padding: 0.85rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+  .spec-table td:first-child {
+    color: var(--grey-light);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    width: 40%;
+    padding-right: 2rem;
+  }
+  .spec-table td:last-child {
+    color: var(--white);
+    letter-spacing: 0.06em;
+  }
+  .spec-table tr:last-child { border-bottom: none; }
+
+  /* ── WARNING BOX ── */
+  .warning-box {
+    border: 1px solid var(--red-dark);
+    padding: 2rem;
+    margin: 2rem 0;
+    background: rgba(139,0,0,0.06);
+  }
+  .warning-box .warning-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+  .warning-box p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  /* ── NOTE BOX ── */
+  .note-box {
+    border-left: 2px solid var(--grey-mid);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .note-box p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist {
+    list-style: none;
+    margin: 1.5rem 0;
+  }
+  .checklist li {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--white-dim);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--grey);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .checklist li::before {
+    content: '—';
+    color: var(--red);
+    flex-shrink: 0;
+  }
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist-x li::before {
+    content: '✗';
+    color: var(--red);
+  }
+  .checklist-check li::before {
+    content: '✓';
+    color: var(--red);
+  }
+
+  /* ── PRODUCT CARD ── */
+  .product-card {
+    border: 1px solid var(--grey-mid);
+    padding: 2.5rem;
+    margin: 2rem 0;
+    background: var(--grey);
+    position: relative;
+  }
+  .product-card .product-number {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-family: var(--font-display);
+    font-size: 4rem;
+    color: rgba(255,255,255,0.05);
+    line-height: 1;
+  }
+
+  /* ── DIVIDER STATEMENT ── */
+  .statement {
+    padding: 5rem 0;
+    text-align: center;
+    border-bottom: 1px solid var(--grey);
+    border-top: 1px solid var(--grey);
+    margin: 4rem 0;
+    background: var(--black);
+  }
+  .statement p {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 3.5rem);
+    letter-spacing: 0.06em;
+    color: var(--white);
+    line-height: 1.3;
+    margin: 0;
+  }
+  .statement .red-line {
+    width: 40px;
+    height: 2px;
+    background: var(--red);
+    margin: 1.5rem auto;
+  }
+
+  /* ── PAGE NUMBER / FOOTER ── */
+  .section-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--grey-mid);
+  }
+  .section-footer span {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+  }
+
+  /* ── TALLER SECTION ── */
+  .taller-section {
+    background: var(--white);
+    color: var(--black);
+    padding: 6rem 0;
+  }
+  .taller-section h2.display { color: var(--black); }
+  .taller-section .section-label { color: var(--red); }
+  .taller-section .section-label::after { background: #ccc; }
+  .taller-section p { color: #333; }
+  .taller-section p strong { color: #000; }
+  .taller-section hr.rule { border-color: #ddd; }
+  .taller-section h4.mono-head { color: var(--red-dark); }
+  .taller-section h3.serif { color: #111; }
+  .taller-section .pull-quote {
+    background: rgba(139,0,0,0.04);
+    border-color: var(--red);
+  }
+  .taller-section .pull-quote p { color: #111; }
+  .taller-section .spec-table td:first-child { color: #888; }
+  .taller-section .spec-table td:last-child { color: #111; }
+  .taller-section .spec-table tr { border-color: #e0e0e0; }
+  .taller-section .checklist li { color: #333; border-color: #e0e0e0; }
+  .taller-section .warning-box { border-color: var(--red-dark); background: rgba(139,0,0,0.05); }
+  .taller-section .warning-box p { color: #222; }
+  .taller-section .img-placeholder { background: #f0f0f0; border-color: #ddd; }
+  .taller-section .img-label { color: #999; }
+  .taller-section .img-desc { color: #999; }
+  .taller-section .note-box { border-color: #ccc; background: #f9f9f9; }
+  .taller-section .note-box p { color: #333; }
+  .taller-section .section-footer span { color: #bbb; }
+  .taller-section .section-footer { border-color: #ddd; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ COVER ══ -->
+<div class="cover">
+  <div class="cover-noise"></div>
+  <div class="cover-tag">Documento de Marca · Colección Fundacional · Versión 1.0</div>
+  <div class="cover-title">EZ<span>R</span>A</div>
+  <div class="cover-line"></div>
+  <div class="cover-subtitle-row">
+    <div class="cover-tagline">
+      Lo que no se grita,<br>
+      se siente.<br>
+      <em>Silencio con peso.</em>
+    </div>
+    <div class="cover-meta">
+      Streetwear Premium<br>
+      Documento Interno<br>
+      Producción + Identidad<br>
+      Confidencial
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ ÍNDICE ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">00 — Índice</div>
+    <h2 class="display">Contenido</h2>
+    <p class="dim italic">Este documento fue creado para presentar la marca EZRA en profundidad a quienes participarán en su producción. Es simultáneamente una guía de identidad, una ficha técnica y un manifiesto.</p>
+    <hr class="rule">
+    <ul class="checklist checklist-check">
+      <li>01 — Identidad de Marca & Filosofía</li>
+      <li>02 — Paleta de Colores & Lenguaje Visual</li>
+      <li>03 — Filosofía de Diseño</li>
+      <li>04 — Productos Principales</li>
+      <li>05 — Fit & Corte</li>
+      <li>06 — Materiales & Tela</li>
+      <li>07 — Acabados & Tratamientos</li>
+      <li>08 — Bordado — El Elemento Identitario</li>
+      <li>09 — Ubicación de Diseños</li>
+      <li>10 — Concepto Rosa + Serpiente</li>
+      <li>11 — Construcción de la Prenda</li>
+      <li>12 — Packaging</li>
+      <li>13 — Experiencia de Marca</li>
+      <li>14 — Instrucciones para el Taller</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 01 — IDENTIDAD ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">01 — Identidad de Marca</div>
+    <h1 class="display">¿Qué<br>es EZRA?</h1>
+
+    <div class="img-placeholder tall">
+      <div class="img-icon">◼</div>
+      <div class="img-label">Imagen sugerida — Identidad</div>
+      <div class="img-desc">Fotografía editorial de figura masculina de espalda. Ambiente urbano nocturno. Ropa oscura, postura natural pero imponente. Sin mostrar el rostro. Luz lateral suave. Sensación: presencia sin esfuerzo.</div>
+    </div>
+
+    <h4 class="mono-head">La Esencia</h4>
+    <p>EZRA no es una marca de ropa. <strong>EZRA es un estado de ánimo que se usa.</strong> Es la convicción silenciosa de alguien que no necesita validación, que no grita su presencia porque su presencia se anuncia sola. Es la calma justo antes de que todo cambie.</p>
+
+    <p>Vivimos en una época de ruido extremo: marcas que gritan, logos que compiten, colores que piden atención. EZRA responde a todo eso con silencio. Con peso. Con una elegancia que no pide permiso.</p>
+
+    <p>Cada prenda EZRA debe transmitir una sola cosa al primer contacto: <em>esto fue hecho con intención.</em> No con prisa. No para agradar. Para existir con exactamente el nivel de impacto que se planeó.</p>
+
+    <div class="pull-quote">
+      <p>"La ropa que no necesita explicación<br>es la ropa que más dice."</p>
+    </div>
+
+    <h4 class="mono-head">Referencias de Marca</h4>
+    <p>EZRA habita el mismo espacio emocional que marcas como <strong>Fear of God</strong>, <strong>Amiri</strong> y <strong>Represent</strong>. Comparte con ellas la obsesión por el detalle, la calidad de materiales, la seriedad del corte y la capacidad de comunicar lujo sin usar el lenguaje del lujo tradicional.</p>
+
+    <p>Pero EZRA tiene su propio lenguaje. Uno más austero, más tenso, más oscuro. Sin la nostalgia americana de Fear of God. Sin la extravagancia de Amiri. Con algo que le pertenece solo a esta marca: la dualidad entre belleza y peligro, entre elegancia y amenaza silenciosa.</p>
+
+    <h4 class="mono-head">El Concepto Emocional</h4>
+
+    <div class="two-col">
+      <div>
+        <p><strong>Belleza vs. Peligro.</strong> Una rosa es perfecta y tiene espinas. EZRA viste esa contradicción. Lo que se ve hermoso puede cortarte. Lo que parece quieto está listo para moverse.</p>
+        <p><strong>Elegancia vs. Tensión.</strong> No es la elegancia de un hombre de traje. Es la elegancia de alguien que decidió cómo moverse por el mundo y no va a cambiar de opinión.</p>
+      </div>
+      <div>
+        <p><strong>Silencio vs. Impacto.</strong> La prenda no habla primero. Pero cuando la notas, no puedes dejar de notarla. Ese es el objetivo: ser invisible hasta que no puedes dejar de ver.</p>
+        <p><strong>Lo que no se muestra.</strong> El poder real no se exhibe. Se siente. EZRA entiende que el misterio es más poderoso que la exposición.</p>
+      </div>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>01 — Identidad</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 02 — PALETA ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">02 — Paleta & Lenguaje Visual</div>
+    <h2 class="display">Color<br>&amp; Tono</h2>
+
+    <p>La paleta de EZRA no es una decisión estética decorativa. <strong>Es una decisión de carácter.</strong> Cada color fue elegido porque transmite algo específico, porque crea una tensión particular, porque habla antes de que la forma hable.</p>
+
+    <hr class="rule">
+
+    <div class="two-col">
+      <div>
+        <div style="width:100%;height:120px;background:var(--black-deep);border:1px solid var(--grey-mid);margin-bottom:1rem;"></div>
+        <h4 class="mono-head">Negro Profundo — Base</h4>
+        <p>Este no es el negro de una playera básica. Es el negro de una sala sin ventanas, el negro de la tinta sobre papel grueso, el negro que absorbe la luz y no la devuelve. <strong>Debe ser mate, denso, casi mineral.</strong></p>
+        <p>El negro correcto hace que la prenda se vea pesada incluso cuando está colgada. Que se vea construida. Que comunique seriedad desde la percha.</p>
+        <p>El negro incorrecto (brillante, grisáceo, azulado) destruye la ilusión de lujo. Es la diferencia entre una prenda de $20 y una de $200 antes de tocarla.</p>
+      </div>
+      <div>
+        <div style="width:100%;height:120px;background:var(--red);border:1px solid var(--grey-mid);margin-bottom:1rem;"></div>
+        <h4 class="mono-head">Rojo — Identidad</h4>
+        <p>El rojo de EZRA no es decorativo. <strong>Es la firma de la marca.</strong> Es la única nota de color en un universo negro, y por eso su presencia vale diez veces más que si hubiera más colores.</p>
+        <p>Se recomienda trabajar con un rojo oscuro e intenso: no el rojo brillante del deporte, sino un rojo con profundidad, con historia. Algo cercano al carmesí, entre <strong>#B01015 y #C0151A</strong>. Un rojo que parece haber costado algo.</p>
+        <p>El rojo aparece <em>exclusivamente en el bordado</em>. Esa restricción es estratégica: lo convierte en un elemento sagrado de la marca.</p>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <div style="padding: 2rem; border: 1px solid var(--grey-mid); background: var(--grey); margin-top: 1rem;">
+      <h4 class="mono-head" style="margin-top:0">Blanco — Uso Mínimo</h4>
+      <p>El blanco de EZRA aparece en momentos muy específicos: alguna tipografía secundaria, detalles de packaging, elementos gráficos de contraste puntual. <strong>Nunca como base de prenda, nunca como protagonista.</strong> Su función es respirar, no dominar.</p>
+    </div>
+
+    <div class="img-placeholder short" style="margin-top:2.5rem">
+      <div class="img-label">Imagen sugerida — Paleta de Marca</div>
+      <div class="img-desc">Disposición plana de telas en los tres colores de la marca. Negro profundo dominante, swatch de rojo carmesí, toque de blanco marfil. Fotografía de materiales sobre superficie de madera o concreto. Iluminación difusa. Sin texto, sin adornos.</div>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>02 — Paleta</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 03 — FILOSOFÍA ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">03 — Filosofía de Diseño</div>
+    <h2 class="display">Menos<br>es Arma</h2>
+
+    <p>La filosofía de diseño de EZRA no se puede resumir en una tendencia. No es minimalismo por moda ni simplicidad por pereza. Es una postura: <strong>creer que la reducción es la forma más poderosa de comunicación.</strong></p>
+
+    <h3 class="serif">Por qué menos es más — y no al revés</h3>
+    <p>Cuando una prenda tiene demasiados elementos, el ojo no sabe dónde ir. Compite con sí misma. El resultado es ruido: visual, emocional, conceptual. Una prenda cargada de estampados, parches, prints y colores puede ser impresionante en pantalla y completamente insignificante en la calle.</p>
+
+    <p>EZRA apuesta por lo contrario: <strong>una prenda con un solo punto de atención, perfectamente ejecutado, genera más recordación y más respeto que diez elementos mediocres juntos.</strong> El ojo descansa, y cuando descansa, puede apreciar.</p>
+
+    <p>El lujo verdadero —el de Bottega Veneta, el del mejor denim japonés, el de las zapatillas más buscadas del mercado— está construido sobre esta misma lógica. No muestran todo lo que saben hacer. Muestran <em>exactamente lo que quieren que veas</em>.</p>
+
+    <h4 class="mono-head">Evitar el Diseño Genérico</h4>
+    <p>Existe un lenguaje visual del streetwear genérico: logos sobreexpuestos, estampados que ya viste en mil prendas, tipografías que usan marcas de cinco dólares y marcas de quinientos. La trampa es pensar que imitar a las marcas exitosas garantiza el mismo resultado.</p>
+
+    <p><strong>No lo hace.</strong> Lo que diferencia a una marca con identidad propia no es qué tan cerca está de las referencias, sino qué tan claro es su propio punto de vista. EZRA tiene el suyo.</p>
+
+    <div class="pull-quote">
+      <p>"El diseño genérico no ofende a nadie.<br>Tampoco le importa a nadie."</p>
+    </div>
+
+    <h4 class="mono-head">El Bordado como Elemento Clave</h4>
+    <p>En EZRA, el bordado no es decoración. <strong>Es el elemento de identidad definitivo.</strong> Y eso importa porque el bordado tiene propiedades que ningún otro método de aplicación tiene: tiene textura, tiene profundidad, tiene presencia táctil, tiene historia.</p>
+
+    <p>Un bordado bien hecho cambia la naturaleza de una prenda. Agrega peso visual sin agregar peso real. Agrega carácter sin agregar ruido. Un hilo rojo sobre negro es una afirmación: <em>alguien decidió que esto importaba.</em></p>
+
+    <p>El bordado de EZRA debe tener líneas visibles, densidad controlada, brillo sutil del hilo. Debe poder sentirse al pasarlo con el dedo. Debe ser suficientemente pequeño para no dominar, y suficientemente preciso para que quien lo note, lo recuerde.</p>
+
+    <h4 class="mono-head">El Espacio Negativo como Lujo</h4>
+    <p>En diseño, el espacio negativo es el espacio vacío alrededor de un elemento. En las marcas más baratas, el espacio negativo se llena porque parece que "falta algo". En las marcas premium, el espacio negativo se respeta porque <strong>el vacío tiene valor.</strong></p>
+
+    <p>Cuando una prenda tiene poco sobre ella, cada elemento que sí está se vuelve más importante. El negro de la tela se convierte en el protagonista. La forma del corte se convierte en el mensaje. Un bordado pequeño en el lugar correcto vale más que un estampado que cubre toda la espalda.</p>
+
+    <p>EZRA utiliza el espacio negativo activamente: la mayor parte de cada prenda es negro limpio, firme, bien construido. Ese negro <em>es</em> el diseño.</p>
+
+    <h4 class="mono-head">La Simplicidad bien Ejecutada como Valor</h4>
+    <p>Una prenda simple mal hecha es invisible en el peor sentido: pasa desapercibida porque comunica nada. Una prenda simple bien hecha es imposible de ignorar porque comunica todo con exactamente cero esfuerzo aparente.</p>
+
+    <p>La diferencia está en los detalles que nadie menciona pero todos perciben: el peso de la tela, la limpieza de las costuras, la proporciones del corte, la posición exacta de ese único elemento decorativo. <strong>Eso es lo que EZRA está construyendo.</strong></p>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>03 — Filosofía</span>
+    </div>
+  </div>
+</section>
+
+<div class="statement">
+  <div class="container">
+    <div class="red-line"></div>
+    <p>EZRA NO GRITA.<br>EZRA PERMANECE.</p>
+    <div class="red-line"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 04 — PRODUCTOS ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">04 — Productos Principales</div>
+    <h2 class="display">La<br>Prenda</h2>
+    <p>EZRA lanza su colección fundacional con dos prendas. No diez. No cinco. <strong>Dos.</strong> Porque la claridad es una postura. Porque perfeccionar dos prendas es más poderoso que producir diez mediocres. Estas dos prendas deben funcionar como sistema: se diseñaron para usarse juntas, y cada una es completamente válida por sí sola.</p>
+
+    <hr class="rule">
+
+    <!-- PRODUCTO 1 -->
+    <div class="product-card">
+      <div class="product-number">01</div>
+      <div class="section-label">Producto 01</div>
+      <h3 class="serif">El Pantalón — Jogger Premium</h3>
+
+      <div class="img-placeholder tall">
+        <div class="img-label">Imagen sugerida — Pantalón EZRA</div>
+        <div class="img-desc">Vista frontal y lateral del pantalón sobre maniquí o figura masculina. Fondo negro o gris oscuro. Luz lateral que muestra la textura de la tela y la caída del corte. Detalle del bordado en la pretina visible. Sin accesorios distrayentes.</div>
+      </div>
+
+      <h4 class="mono-head">Descripción & Concepto</h4>
+      <p>El pantalón jogger de EZRA es la prenda fundacional de la marca. Su propósito no es el jogging ni el deporte. <strong>Es existir en esa zona de máxima tensión entre lo atlético y lo formal,</strong> entre la comodidad y la intención.</p>
+
+      <p>A primera vista, es un pantalón oscuro. A segunda vista, es una prenda construida con precisión quirúrgica: la tela correcta, la caída correcta, el detalle correcto en el lugar correcto. Esa segunda vista es la que cuenta. Esa es la que recuerda el dueño cada vez que se lo pone.</p>
+
+      <p>El jogger de EZRA debe usar una pretina ancha —<strong>mínimo 6 cm</strong>— con cordón interior, no exterior. Los puños en los tobillos deben ser canalé grueso, con suficiente tensión para mantener la forma sin apretar. El resultado debe ser una silueta limpia desde la pretina hasta el tobillo.</p>
+
+      <h4 class="mono-head">Puntos de Diseño</h4>
+      <ul class="checklist checklist-check">
+        <li>Pretina ancha (≥6cm) en canalé o tela principal, con cordón oculto interno</li>
+        <li>Bolsillos laterales con apertura limpia, sin volumen ni protuberancias visibles</li>
+        <li>Bolsillo trasero funcional (opcional) con terminación lisa</li>
+        <li>Puños tobilleros en canalé grueso, bien ajustados</li>
+        <li>Sin etiquetas en el exterior — etiqueta interior discreta o woven label premium</li>
+        <li>Bordado EZRA: centro de pelvis, debajo de pretina (ver Sección 09)</li>
+      </ul>
+
+      <table class="spec-table">
+        <tr><td>Tipo</td><td>Jogger Relaxed Tapered</td></tr>
+        <tr><td>Tela</td><td>French Terry o Algodón Fleece</td></tr>
+        <tr><td>Gramaje</td><td>350–400 GSM</td></tr>
+        <tr><td>Color</td><td>Negro profundo, mate</td></tr>
+        <tr><td>Pretina</td><td>Canalé 6–8cm, cordón oculto</td></tr>
+        <tr><td>Puños</td><td>Canalé grueso 4–5cm</td></tr>
+        <tr><td>Bordado</td><td>Rojo carmesí — hilo ligeramente brillante</td></tr>
+      </table>
+    </div>
+
+    <!-- PRODUCTO 2 -->
+    <div class="product-card">
+      <div class="product-number">02</div>
+      <div class="section-label">Producto 02</div>
+      <h3 class="serif">El Polerón — Hoodie / Crewneck</h3>
+
+      <div class="img-placeholder tall">
+        <div class="img-label">Imagen sugerida — Polerón EZRA</div>
+        <div class="img-desc">Fotografía editorial del polerón colgado en fondo neutro oscuro, mostrando la silueta completa y la caída del hombro. Vista de detalle del bordado en el pecho. Segunda toma: figura masculina usando la prenda, postura natural, manos en bolsillo si es hoodie. Luz dura lateral.</div>
+      </div>
+
+      <h4 class="mono-head">Descripción & Concepto</h4>
+      <p>El polerón es la prenda de presencia de EZRA. Donde el pantalón opera desde abajo hacia arriba —desde la pretina hasta el tobillo— el polerón opera desde arriba: <strong>define la silueta completa del que lo lleva.</strong></p>
+
+      <p>Un buen polerón de alta gama cae de los hombros con peso. No flota. No se arruga en la espalda. Se establece sobre el cuerpo como algo que pertenece ahí. La diferencia entre un polerón barato y uno premium se mide en centímetros: el largo exacto, el ancho del hombro, la profundidad del escote, el largo del cuerpo versus el largo de la manga.</p>
+
+      <p>Se propone comenzar con el <strong>crewneck</strong> como primera entrega —silueta más limpia, más versátil, más difícil de arruinar con una mala construcción— con posibilidad de lanzar el hoodie en una segunda etapa con todos los detalles dominados.</p>
+
+      <h4 class="mono-head">Puntos de Diseño</h4>
+      <ul class="checklist checklist-check">
+        <li>Largo del cuerpo: que cubra la pretina del pantalón cuando está en posición natural</li>
+        <li>Hombros: caída natural, no estructurada — punto de hombro ligeramente dropped</li>
+        <li>Mangas: largas, con puño canalé 5–6cm bien ajustado</li>
+        <li>Cuello: canalé doble (si crewneck) bien tensado y limpio</li>
+        <li>Dobladillo inferior: canalé o ribete limpio, con suficiente peso para caer recto</li>
+        <li>Sin capucha si es crewneck — sin bolsillo canguro frontal en la primera versión</li>
+        <li>Bordado EZRA: centro del pecho (ver Sección 09)</li>
+      </ul>
+
+      <table class="spec-table">
+        <tr><td>Tipo</td><td>Crewneck Relaxed (primera entrega)</td></tr>
+        <tr><td>Tela</td><td>French Terry o Algodón Fleece</td></tr>
+        <tr><td>Gramaje</td><td>350–400 GSM</td></tr>
+        <tr><td>Color</td><td>Negro profundo, mate</td></tr>
+        <tr><td>Cuello</td><td>Canalé doble, limpio</td></tr>
+        <tr><td>Hombros</td><td>Ligeramente dropped — no estructurado</td></tr>
+        <tr><td>Puños</td><td>Canalé 5–6cm, ajustado pero cómodo</td></tr>
+        <tr><td>Bordado</td><td>Rojo carmesí — hilo ligeramente brillante</td></tr>
+      </table>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>04 — Productos</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 05 — FIT ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">05 — Fit & Corte</div>
+    <h2 class="display">Cómo<br>Cae</h2>
+
+    <p>El fit es, posiblemente, el elemento más difícil de comunicar y el más crítico de dominar. <strong>Un corte incorrecto destruye una prenda perfecta.</strong> La tela más cara del mundo en un corte equivocado produce una prenda que nadie quiere usar.</p>
+
+    <div class="img-placeholder tall">
+      <div class="img-label">Imagen sugerida — Silueta de Fit</div>
+      <div class="img-desc">Diagrama o fotografía comparativa de siluetas: izquierda, fit demasiado holgado (sin forma); centro, el fit EZRA (relaxed tapered); derecha, fit demasiado ajustado (skinny). Fondo blanco o negro. Sin texto en la imagen, solo las siluetas.</div>
+    </div>
+
+    <h3 class="serif">Relaxed Tapered — El Corte EZRA</h3>
+    <p>El fit de EZRA se llama <strong>Relaxed Tapered</strong>. Esas dos palabras son aparentemente contradictorias, y esa contradicción es exactamente el punto. "Relaxed" en la parte superior: holgura en caderas y muslos que permite movimiento natural, que no marca ni aprieta, que cae con gravedad. "Tapered" en la parte inferior: la pierna se afina gradualmente desde la rodilla hacia el tobillo, creando una silueta limpia y directa.</p>
+
+    <p>Este corte fue desarrollado por las marcas de referencia porque logra algo que pocos fits consiguen: <strong>verse bien parado y verse bien en movimiento al mismo tiempo.</strong></p>
+
+    <h4 class="mono-head">En Reposo (Parado, Sin Movimiento)</h4>
+    <p>La prenda descansa sobre el cuerpo con peso. La tela no flota ni se agita. Hay un pliegue natural en la ingle que indica holgura sin exceso. La pierna cae recta desde la cadera hasta la rodilla, y desde ahí se ajusta ligeramente. <strong>El resultado es una silueta sólida, verticalmente limpia.</strong></p>
+
+    <h4 class="mono-head">Al Caminar</h4>
+    <p>La tela se mueve con el cuerpo, no contra él. No hay restricción en el paso. La holgura superior permite movimiento completo. El tapering inferior hace que la parte baja de la pierna permanezca limpia incluso en movimiento. <strong>La prenda no "vuela" ni se ve descontrolada</strong>: se mueve con dignidad.</p>
+
+    <h4 class="mono-head">Desde Distintos Ángulos</h4>
+    <ul class="checklist">
+      <li>Frente: silueta vertical limpia, pretina ancha, puños definidos</li>
+      <li>Lateral: holgura en cadera/muslo visible pero controlada, no excesiva</li>
+      <li>Espalda: caída lisa, sin arrugas horizontales que indiquen tensión</li>
+      <li>Sentado: la prenda no sube ni jala, mantiene su forma sin tensionarse</li>
+    </ul>
+
+    <hr class="rule">
+
+    <h3 class="serif">Barato vs. Premium: La Diferencia en el Corte</h3>
+
+    <div class="two-col">
+      <div>
+        <h4 class="mono-head">Pantalón Barato</h4>
+        <p>Tiene demasiado volumen en las caderas y colapsa sin estructura. La parte inferior de la pierna o es demasiado ancha (flota) o demasiado estrecha (aprieta). La pretina es delgada y se dobla. Los puños pierden su forma después del primer uso. La tela es liviana y translúcida: se ve el cuerpo a través de ella. <strong>Todo esto comunica precio antes de que nadie vea la etiqueta.</strong></p>
+      </div>
+      <div>
+        <h4 class="mono-head">Pantalón Premium</h4>
+        <p>El volumen es intencional: exactamente donde necesita holgura, y exactamente donde no. La pretina es gruesa, firme, no se dobla ni enrolla. Los puños mantienen su forma después de múltiples lavados. La tela cae como si tuviera peso propio. <strong>No se necesita ver la marca para saber que fue construido con criterio.</strong></p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      <p>"El corte correcto no se ve.<br>Se siente cuando caminas."</p>
+    </div>
+
+    <h4 class="mono-head">Especificaciones de Proporción</h4>
+    <table class="spec-table">
+      <tr><td>Holgura caderas/muslo</td><td>Amplia pero controlada — no balloon, no slim</td></tr>
+      <tr><td>Inicio del tapering</td><td>Desde la rodilla hacia abajo</td></tr>
+      <tr><td>Ancho tobillo</td><td>Limpio, justo sobre el canalé — sin exceso</td></tr>
+      <tr><td>Largo del pantalón</td><td>Con puño bajado: roza el calzado. Sin apilamiento excesivo</td></tr>
+      <tr><td>Largo polerón</td><td>Cubre la pretina del pantalón 2–4cm cuando está puesto</td></tr>
+      <tr><td>Caída de hombro</td><td>1–2cm dropped del punto natural del hombro</td></tr>
+    </table>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>05 — Fit</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 06 — MATERIALES ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">06 — Materiales & Tela</div>
+    <h2 class="display">La Piel<br>de EZRA</h2>
+
+    <p>La tela es la primera conversación que tiene una prenda con quien la toca. <strong>Antes de verla en el cuerpo, antes de ver el diseño, hay un segundo en que alguien la roza con los dedos y toma una decisión.</strong> Esa decisión —esto vale o no vale— está determinada en un 70% por la tela.</p>
+
+    <div class="img-placeholder short">
+      <div class="img-label">Imagen sugerida — Detalle de Tela</div>
+      <div class="img-desc">Macro fotográfica de la textura de la tela. Se debe apreciar la estructura del tejido, la profundidad del color negro y la densidad del material. Iluminación rasante que revele el relieve de la fibra. Sin objetos en el fondo.</div>
+    </div>
+
+    <h3 class="serif">Algodón Fleece / French Terry — 350–400 GSM</h3>
+
+    <p>EZRA trabaja con <strong>algodón fleece</strong> o <strong>french terry</strong>, ambos con gramaje entre 350 y 400 GSM. No se admiten gramajes inferiores. Esta no es una decisión arbitraria: es la diferencia entre una prenda que comunica lujo y una que comunica ropa deportiva genérica.</p>
+
+    <div class="two-col">
+      <div>
+        <h4 class="mono-head">French Terry</h4>
+        <p>Tejido de punto con exterior liso y superficie interior con pequeños bucles cortos. El resultado es una cara exterior <strong>limpia, bien definida, de apariencia más elegante</strong>. Cae bien sin exceso de volumen. Ideal para el polerón.</p>
+        <p>El french terry de alta densidad (380–400GSM) tiene una sensación casi parecida al lino premium: <em>peso sin rigidez, suavidad sin flacidez</em>.</p>
+      </div>
+      <div>
+        <h4 class="mono-head">Algodón Fleece</h4>
+        <p>Tejido con interior afelpado (brushed) que aporta calidez y suavidad táctil superior. Exterior más texturizado que el french terry. <strong>Comunica comodidad y peso.</strong> La sensación al tocar el exterior debe ser firme; al meter la mano, suave.</p>
+        <p>El fleece de 380–400GSM cae con autoridad. No se ve "esponjoso" ni blando: se ve construido.</p>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <h4 class="mono-head">Cómo Debe Sentirse al Tacto</h4>
+    <p>La cara exterior debe sentirse <strong>firme pero no rígida</strong>. Como si la tela tuviera estructura propia. Al pellizcarla, debe recuperar su forma inmediatamente. No debe tener sensación de algodón liviano de remera: tiene que sentirse como material de construcción, no de uso desechable.</p>
+
+    <p>Al interior: suavidad. Si es fleece, el interior afelpado debe sentirse cálido y denso, no rasposo. Si es french terry, los pequeños bucles deben ser suaves y regulares, no irregulares ni apelmazados.</p>
+
+    <h4 class="mono-head">Cómo Reacciona al Movimiento</h4>
+    <p>Al doblar la tela, debe recuperar sola. No debe quedar marcada. Al estirarla ligeramente, debe tener un rebote natural sin tensión excesiva. <strong>La tela correcta tiene memoria</strong>: sabe dónde estaba y vuelve.</p>
+
+    <p>Al caminar con el pantalón, la tela no debe repiquetear ni hacer ruido. Debe moverse en silencio, con peso. Ese silencio es parte de la experiencia de la marca.</p>
+
+    <h4 class="mono-head">Por Qué el Gramaje da Percepción de Lujo</h4>
+    <p>El ser humano asocia instintivamente <em>peso = valor</em>. Una botella de vino más pesada se percibe como mejor vino. Una puerta de auto que cierra con solidez se percibe como un auto mejor construido. <strong>Una prenda más pesada se percibe como una prenda más cara, más cuidada, más duradera.</strong></p>
+
+    <p>A 350–400 GSM, el pantalón y el polerón EZRA tienen ese peso. Se sienten como una inversión cuando están en las manos. Eso no es accidental: es diseño.</p>
+
+    <table class="spec-table">
+      <tr><td>Material base</td><td>100% algodón (French Terry o Fleece)</td></tr>
+      <tr><td>Gramaje objetivo</td><td>380 GSM (rango: 350–400)</td></tr>
+      <tr><td>Composición aceptada</td><td>Hasta 5% elastano para mejor recuperación de forma</td></tr>
+      <tr><td>Tejido</td><td>Punto — jersey / interlock</td></tr>
+      <tr><td>Acabado exterior</td><td>Liso, firme, sin pelusas</td></tr>
+      <tr><td>Acabado interior</td><td>Brushed (fleece) o micro-loop (french terry)</td></tr>
+    </table>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>06 — Materiales</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 07 — ACABADOS ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">07 — Acabados & Tratamientos</div>
+    <h2 class="display">El Negro<br>Correcto</h2>
+
+    <p>Hay cientos de negros. No todos son iguales. <strong>La elección del negro correcto es tan crítica como la elección de la tela misma.</strong> Y el acabado de ese negro —si es mate, si tiene brillo, si tiene textura— define si la prenda se percibe como una inversión o como un básico de cadena masiva.</p>
+
+    <h3 class="serif">Negro Mate Profundo — La Única Opción</h3>
+    <p>El negro de EZRA debe ser <strong>mate</strong>. No satinado. No azulado. No grisáceo. Negro profundo, sin reflexión de luz, que absorba sin devolver. La diferencia es visible incluso en fotografía: un negro brillante o grisáceo parece barato de inmediato. Un negro mate profundo parece serio, deliberado, premium.</p>
+
+    <p>En el mercado textil, este color suele llamarse "carbon black", "deep black" o "true black". Al solicitar tela, es importante especificar que no se acepta negro con acabado fluorescente ni negro lavado. Si hay duda, se recomienda pedir muestra física y evaluar bajo luz natural y artificial.</p>
+
+    <h4 class="mono-head">El Lavado Enzimático — Soft Wash</h4>
+    <p>Se propone aplicar un lavado enzimático (<em>enzyme wash</em> o <em>garment wash</em>) en el proceso de terminación. Este tratamiento suaviza las fibras del algodón sin afectar el color ni la estructura del tejido. El resultado es una prenda que se siente <strong>"usada con amor desde el primer uso"</strong>: no nueva y rígida, sino asentada, con caída inmediata.</p>
+
+    <p>Este tratamiento es muy utilizado en streetwear premium (Fear of God lo aplica en muchas de sus prendas) y agrega un costo de producción menor, pero un diferencial perceptible en el producto final. La tela se siente más densa después del proceso, no más blanda.</p>
+
+    <div class="note-box">
+      <p><strong>Nota técnica:</strong> El lavado enzimático debe hacerse después de la confección, no antes. Hacerlo antes puede alterar las medidas. Consultar con el taller si tienen experiencia con este proceso antes de aplicarlo en producción.</p>
+    </div>
+
+    <h4 class="mono-head">Textura Visual Limpia</h4>
+    <p>La superficie de la tela, cuando está terminada, no debe tener pelusas, hilachas, arrugas permanentes ni variaciones de color. La textura debe ser uniforme de extremo a extremo. <strong>Cualquier variación de textura es un defecto en una prenda de este nivel.</strong></p>
+
+    <p>Si se trabaja con fleece, el brushing del interior no debe ser visible desde afuera. Si hay puntos donde la tela se adelgaza o el interior se filtra, esa es una falla de producción.</p>
+
+    <div class="pull-quote">
+      <p>"El negro correcto no se compra.<br>Se especifica."</p>
+    </div>
+
+    <table class="spec-table">
+      <tr><td>Tono de negro</td><td>Profundo, mate — sin reflexión azulada ni grisácea</td></tr>
+      <tr><td>Acabado superficial</td><td>Mate — no satinado, no brillante</td></tr>
+      <tr><td>Tratamiento post-confección</td><td>Lavado enzimático (recomendado)</td></tr>
+      <tr><td>Textura post-lavado</td><td>Suave, uniforme, sin pelusas</td></tr>
+      <tr><td>Estabilidad de color</td><td>No debe desteñir ni aclarar con lavados normales</td></tr>
+    </table>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>07 — Acabados</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 08 — BORDADO ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">08 — Bordado</div>
+    <h2 class="display">El Hilo<br>Rojo</h2>
+
+    <p>Si hubiera que elegir un solo elemento que define a EZRA visualmente, ese elemento es el bordado en hilo rojo. <strong>Es la firma de la marca. Es el único lujo visible. Es la justificación de todo lo demás.</strong></p>
+
+    <div class="img-placeholder tall">
+      <div class="img-label">Imagen sugerida — Bordado de Cerca</div>
+      <div class="img-desc">Macro fotográfica del bordado rojo sobre tela negra. Se deben apreciar las líneas individuales del hilo, el brillo sutil del hilo sobre el fondo mate de la tela, y la profundidad del relieve del bordado. Iluminación rasante suave. Sin fondo adicional — solo tela negra y hilo rojo.</div>
+    </div>
+
+    <h3 class="serif">El Color Rojo como Identidad</h3>
+    <p>En un universo completamente negro, el rojo no necesita competir. <strong>Existe solo.</strong> Es el único acento cromático de EZRA y eso lo convierte en algo más que un color: lo convierte en una marca. La primera vez que alguien ve el bordado rojo sobre el negro profundo de la tela, entiende instantáneamente que eso fue una decisión.</p>
+
+    <p>El rojo elegido debe ser oscuro e intenso: no el rojo del ketchup ni el rojo del deporte. Un rojo que tenga historia, que tenga peso. Cercano al carmesí, al rojo vino oscuro. Un rojo que en cierta iluminación casi parece burdeos y en otra iluminación parece sangre. <strong>Esa ambigüedad es parte del concepto.</strong></p>
+
+    <h4 class="mono-head">Tipo de Hilo — Rayon o Poliéster con Brillo Sutil</h4>
+    <p>El hilo para el bordado de EZRA debe tener un <strong>brillo sutil</strong>. No un brillo fuerte o metálico: ese sería excesivo y visto de lejos parecería barato. Se busca un hilo que, cuando la luz lo toca en ángulo, muestre que tiene vida, que no es opaco. Un hilo de bordado de rayón o poliéster de calidad alta (marcas como Madeira o Isacord) en tono carmesí/rojo oscuro.</p>
+
+    <p>El hilo opaco pierde presencia contra el negro. El hilo con brillo sutil la gana: el bordado parece tridimensional, parece que tiene profundidad propia.</p>
+
+    <h4 class="mono-head">Densidad y Ejecución del Bordado</h4>
+    <p>La densidad del bordado —la cantidad de puntos por centímetro— debe ser <strong>alta pero no excesiva</strong>. Un bordado demasiado denso apelmaza la tela, crea rigidez no deseada y puede distorsionar la superficie del tejido. Un bordado poco denso se ve transparente y barato.</p>
+
+    <p>El objetivo es un bordado con <em>cobertura completa del diseño</em>, donde el hilo rojo cubre totalmente la tela negra debajo, pero sin crear un bloque rígido. <strong>La línea individual de cada puntada debe ser visible a 20–30cm de distancia.</strong> Eso es lo que da la sensación de hecho a mano, de artesanía.</p>
+
+    <h4 class="mono-head">Estilo del Diseño Bordado</h4>
+    <p>El nombre "EZRA" o los elementos gráficos de la marca deben bordarse en un estilo <strong>manuscrito fluido</strong>. No tipografía de imprenta, no sans-serif limpio, no serif clásico. Algo que parezca escrito con intención, con una pluma o un pincel fino: letras conectadas o semi-conectadas, con variación de grosor entre los trazos ascendentes y descendentes.</p>
+
+    <p>El estilo debe ser elegante pero con carácter. No infantil (nada redondeado o decorativo en exceso). No exagerado (nada de swashes enormes ni letras circus). <strong>La referencia correcta es la firma de alguien que tiene criterio.</strong> Directa, fluida, memorable.</p>
+
+    <div class="note-box">
+      <p><strong>Nota de producción:</strong> El archivo de bordado (.DST o .PES) debe ser creado por un digitalizador profesional especializado en bordado de letras script. Un mal archivo de digitalización produce un bordado irregular independientemente de la calidad de la máquina. Este es el paso más crítico del proceso de bordado.</p>
+    </div>
+
+    <table class="spec-table">
+      <tr><td>Color hilo</td><td>Rojo carmesí oscuro — Ref. aprox. Pantone 7621C</td></tr>
+      <tr><td>Tipo de hilo</td><td>Rayón o poliéster calidad alta — brillo sutil</td></tr>
+      <tr><td>Marcas de referencia</td><td>Madeira, Isacord, Sulky</td></tr>
+      <tr><td>Densidad</td><td>Alta — cobertura completa, sin rigidez</td></tr>
+      <tr><td>Estilo tipográfico</td><td>Script / manuscrito fluido — no infantil</td></tr>
+      <tr><td>Digitalizador</td><td>Profesional — archivo .DST o .PES</td></tr>
+      <tr><td>Tamaño</td><td>Ver Sección 09 — ubicación por prenda</td></tr>
+    </table>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>08 — Bordado</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 09 — UBICACIÓN ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">09 — Ubicación de Diseños</div>
+    <h2 class="display">Dónde<br>Habita</h2>
+
+    <p>La ubicación de un elemento en una prenda no es una decisión menor. <strong>Donde se pone el bordado determina qué parte del cuerpo habla, cómo interactúa con la silueta, y qué emoción genera en quien mira.</strong> Cada posición fue pensada con criterio específico.</p>
+
+    <hr class="rule">
+
+    <h3 class="serif">Pantalón — Centro de Pelvis</h3>
+    <p>El bordado principal del pantalón se ubica en el <strong>centro de la pelvis, justo debajo de la pretina</strong>. A unos 3–4cm del borde inferior de la pretina, perfectamente centrado con respecto al ancho del pantalón.</p>
+
+    <p>Esta ubicación es estratégica por varias razones. Primero: no es donde normalmente se pone un logo. La mayoría de los pantalones ponen su marca en el lateral, en la pretina o en el bolsillo trasero. El centro frontal debajo de la pretina es un espacio inusual que <strong>genera sorpresa</strong> cuando se descubre. Segundo: esa zona del cuerpo tiene presencia visual natural —la vista cae ahí— pero no es tan obvia como el pecho. Hay algo de misterio en esa posición.</p>
+
+    <p>Tercero: cuando el polerón está puesto y cuelga sobre esa zona, el bordado queda <em>oculto</em>. Solo se revela cuando la persona levanta el polerón, o cuando usa solo el pantalón. Esa dualidad —presente y oculto— es perfectamente EZRA.</p>
+
+    <h4 class="mono-head">Pantalón — Lateral de Pierna (Opcional)</h4>
+    <p>Una segunda opción es colocar el texto "EZRA" en vertical a lo largo del lateral externo de la pierna derecha. Esta es una posición más agresiva visualmente, más cercana a las referencias de streetwear europeo. Puede considerarse como variante de producto o diseño secundario.</p>
+
+    <hr class="rule-red">
+
+    <h3 class="serif">Polerón — Centro del Pecho</h3>
+    <p>El bordado del polerón va en el <strong>centro del pecho, a la altura del esternón</strong>. Entre 8 y 12cm por debajo de la base del cuello, perfectamente centrado horizontalmente.</p>
+
+    <p>Esta es la posición más clásica del logo de pecho, y hay una razón por la que las mejores marcas la usan: <strong>es donde los ojos van primero cuando miras a alguien de frente.</strong> A esa altura, el bordado queda exactamente en el campo de visión natural. No está en el hombro (demasiado lateral), no está en el abdomen (demasiado bajo), está exactamente donde debe estar.</p>
+
+    <p>El tamaño del bordado en el pecho debe ser contenido: no mayor de 6–8cm en su dimensión más larga. El espacio negativo alrededor del bordado es parte del diseño. Un bordado pequeño y preciso en un mar de negro tiene más impacto que un bordado grande que compite con la silueta.</p>
+
+    <h4 class="mono-head">Manga — Diseños Secundarios (Conceptuales)</h4>
+    <p>Las mangas ofrecen un espacio para diseños secundarios más pequeños y conceptuales: fragmentos del sistema visual de la marca (ver Sección 10), fechas, coordenadas, números de colección. Estos elementos deben ser <strong>discrecionales y sutiles</strong>: deben buscarse, no imponerse.</p>
+
+    <table class="spec-table">
+      <tr><td>Pantalón — principal</td><td>Centro pelvis, 3–4cm bajo pretina. Tamaño: 5–7cm</td></tr>
+      <tr><td>Pantalón — secundario</td><td>Lateral pierna derecha, vertical. Opcional</td></tr>
+      <tr><td>Polerón — principal</td><td>Centro pecho, a nivel esternón. Tamaño: 6–8cm</td></tr>
+      <tr><td>Manga — secundario</td><td>Exterior manga derecha, mitad. Tamaño: 2–4cm. Conceptual</td></tr>
+    </table>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>09 — Ubicación</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 10 — CONCEPTO ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">10 — Concepto Visual</div>
+    <h2 class="display">Rosa<br>&amp; Serpiente</h2>
+
+    <p>El sistema visual de EZRA está anclado en dos elementos simbólicos: la rosa y la serpiente. Estos dos elementos no son una ilustración. <strong>Son una gramática.</strong> Un lenguaje con el que EZRA construye significado sin necesidad de explicarlo.</p>
+
+    <div class="img-placeholder tall">
+      <div class="img-label">Imagen sugerida — Concepto Visual</div>
+      <div class="img-desc">Composición editorial abstracta: pétalos de rosa en fragmentación, línea serpentina que los atraviesa. Blanco y negro con toque de rojo. Fotografía de alta contraste o ilustración lineal minimalista. No realista, no decorativa. Atmosférica.</div>
+    </div>
+
+    <h3 class="serif">La Rosa — Belleza con Consecuencias</h3>
+    <p>La rosa es el símbolo más antiguo de la dualidad: <em>atracción y peligro</em>. Es perfecta, y sus espinas cortan. EZRA no usa la rosa como decoración floral. La usa como declaración filosófica: lo que construimos es hermoso, y tiene filo.</p>
+
+    <h3 class="serif">La Serpiente — Tensión y Transformación</h3>
+    <p>La serpiente es misterio, movimiento silencioso, peligro sin amenaza activa. Es un símbolo que los humanos han temido y adorado simultáneamente en todas las culturas. <strong>No se lanza, no ataca: existe.</strong> Y eso basta. Eso es EZRA.</p>
+
+    <hr class="rule">
+
+    <h3 class="serif">Cómo Usar el Concepto — Sin Ser Literal</h3>
+
+    <div class="warning-box">
+      <div class="warning-title">⚠ Lo que NO debe hacerse</div>
+      <p>No dibujar una rosa realista. No hacer una serpiente realista. No usar ilustraciones típicas de tattoo ni de moda genérica. No hacer que el concepto sea tan obvio que pierda misterio. Cualquier representación directa, literal o decorativa destruye la profundidad del concepto.</p>
+    </div>
+
+    <h4 class="mono-head">Enfoque 01 — Fragmentación</h4>
+    <p>La rosa no existe completa. Solo aparecen <strong>fragmentos</strong>: la curva de un pétalo, la espiral de un capullo, el inicio de una espina. El ojo del observador completa la imagen. Este enfoque exige participación del espectador: no le damos todo, le damos suficiente para que quiera ver más.</p>
+
+    <p>La serpiente tampoco existe completa: solo su contorno en curva, una escama aislada, la sugerencia del movimiento de una línea que podría ser un cuerpo sinuoso.</p>
+
+    <h4 class="mono-head">Enfoque 02 — Sugerencia</h4>
+    <p>Dos elementos en zonas separadas de la prenda que, tomados juntos, forman una narrativa: <strong>la rosa en el pecho, la serpiente en la manga.</strong> Cada uno es independiente, cada uno es abstracto. Pero quien los ve juntos, entiende que hay una conversación entre ellos. Esta técnica narrativa añade profundidad sin necesidad de explicación.</p>
+
+    <h4 class="mono-head">Enfoque 03 — Abstracción Lineal</h4>
+    <p>Traducir ambos elementos a puro lenguaje de línea: la rosa como espiral geométrica con interrupción aguda (la espina), la serpiente como línea continua con oscilación controlada. <strong>Ambos como dibujos lineales en hilo rojo, casi caligráficos.</strong> Esta versión es la más cercana al lenguaje de bordado de EZRA y la más versátil para aplicar en distintos tamaños.</p>
+
+    <div class="note-box">
+      <p><strong>Dirección creativa:</strong> El concepto rosa + serpiente es para ser desarrollado por un diseñador gráfico/ilustrador con brief específico de EZRA. El brief debe incluir este documento como referencia. El resultado final debe ser aprobado por el director creativo de la marca antes de pasar a producción.</p>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>10 — Concepto Visual</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 11 — CONSTRUCCIÓN ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">11 — Construcción de la Prenda</div>
+    <h2 class="display">Lo que<br>No se Ve</h2>
+
+    <p>La construcción de una prenda es la parte que nadie ve pero todos sienten. Es lo que determina si una prenda dura tres lavados o tres años. Si se ve nueva después de usarse o si se ve usada desde la primera vez. <strong>EZRA se construye para durar, para mantener su forma, para ser mejor con el tiempo.</strong></p>
+
+    <hr class="rule">
+
+    <h3 class="serif">Costuras</h3>
+    <p>Las costuras de EZRA deben ser <strong>planas o reforzadas en todas las zonas de tensión</strong>. Las costuras laterales, la entrepierna y los hombros son los puntos de mayor estrés: requieren doble costura o costura de seguridad.</p>
+
+    <p>No se acepta costura simple visible en zonas de tensión. El hilo de costura debe ser del mismo color que la tela (negro) para que, en caso de que algún hilo asome, no sea visible.</p>
+
+    <div class="two-col">
+      <div>
+        <h4 class="mono-head">Costuras Exteriores</h4>
+        <p>Donde haya costuras visibles en el exterior (costado de manga, lateral de pierna), deben ser planas (<em>flatlock</em>) o metidas hacia adentro con topstitching. <strong>No se acepta costura exterior con margen visible que levante.</strong> Cualquier costura que se vea desde afuera debe ser intencional y ejecutada con precisión.</p>
+      </div>
+      <div>
+        <h4 class="mono-head">Costuras Interiores</h4>
+        <p>Las costuras interiores deben estar terminadas (rematadas). No se acepta tela deshilachándose adentro. Si la tela lo requiere, usar overlook / overlock en todos los bordes interiores. Esto no solo cuida la durabilidad: también comunica calidad cuando el cliente inspecciona la prenda.</p>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <h3 class="serif">Pretina del Pantalón</h3>
+    <p>La pretina es uno de los primeros elementos que se ven y se tocan. Debe ser <strong>ancha (6–8cm), firme y no deformable</strong>. Construida con entretela interna que le dé cuerpo sin rigidez. El cordón debe correr por el interior, con los dos extremos saliendo por un orificio central reforzado.</p>
+
+    <p>El ojal del cordón debe estar terminado con metal o cinta reforzada, no costura simple. Cuando el cordón se jala, la pretina no debe arrugarse. <strong>Una pretina que se dobla es una pretina barata.</strong></p>
+
+    <hr class="rule">
+
+    <h3 class="serif">Puños (Canalé)</h3>
+    <p>Los puños de tobillo y de manga se construyen en canalé de alta densidad. El canalé debe tener suficiente elasticidad para expandirse con el movimiento y suficiente memoria para recuperar su forma. <strong>Después de diez lavados, el puño debe verse igual que el día uno.</strong></p>
+
+    <p>El canalé barato pierde su forma después de pocos usos: se estira, se deforma, cuelga. El canalé premium mantiene su tensión. Si el taller no tiene acceso a canalé de calidad suficiente, vale la pena buscarlo antes de producir.</p>
+
+    <hr class="rule-red">
+
+    <h3 class="serif">Barato vs. Premium — Lista de Control</h3>
+
+    <div class="two-col">
+      <div>
+        <h4 class="mono-head" style="color: #888">Señales de Prenda Barata</h4>
+        <ul class="checklist checklist-x">
+          <li>Costuras visibles que levantan la tela</li>
+          <li>Pretina delgada que se dobla sola</li>
+          <li>Canalé que pierde forma en primer uso</li>
+          <li>Interior con hilos sueltos o deshilachado</li>
+          <li>Tela que brilla en los puntos de tensión</li>
+          <li>Bolsillos que abren hacia afuera por el peso</li>
+          <li>Etiqueta cosida con hilo de otro color visible</li>
+          <li>Costuras no simétricas entre lados</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="mono-head">Señales de Prenda Premium</h4>
+        <ul class="checklist checklist-check">
+          <li>Costuras planas o totalmente ocultas</li>
+          <li>Pretina firme, estructurada, sin deformación</li>
+          <li>Canalé que recupera su forma siempre</li>
+          <li>Interior terminado, limpio, sin costuras expuestas</li>
+          <li>Tela uniforme en tensión y reposo</li>
+          <li>Bolsillos invisibles cuando están vacíos</li>
+          <li>Etiqueta interna discreta, bien cosida</li>
+          <li>Simetría perfecta entre lado derecho e izquierdo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>11 — Construcción</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 12 — PACKAGING ══ -->
+<section class="section-dark">
+  <div class="container">
+    <div class="section-label">12 — Packaging</div>
+    <h2 class="display">La Primera<br>Impresión</h2>
+
+    <p>El packaging de EZRA no es un contenedor. <strong>Es la primera prenda que se recibe.</strong> Es la extensión del mundo de la marca al momento más emocional del proceso: cuando el cliente abre lo que compró.</p>
+
+    <div class="img-placeholder short">
+      <div class="img-label">Imagen sugerida — Packaging EZRA</div>
+      <div class="img-desc">Bolsa de papel negra mate con el logotipo EZRA en blanco o rojo discreto. Sobre superficie oscura. Composición limpia, minimalista. Puede incluir la caja rígida como prop adicional. Fotografía de producto, sin personas.</div>
+    </div>
+
+    <hr class="rule">
+
+    <div class="two-col">
+      <div>
+        <h4 class="mono-head">Fase 1 — Bolsa de Papel Negra</h4>
+        <p>La entrega inicial de EZRA usa bolsa de papel kraft negro de alta gramaje. Sin ventanas, sin decoración excesiva. El logo de EZRA —pequeño, centrado o esquinado— en serigrafía blanca o estampado en seco (emboss).</p>
+        <p>Las asas deben ser de cordón negro, no de papel ni plástico. La bolsa debe cerrarse con solapa o estar doblada con precisión. <strong>Nada roto, nada flojo, nada improvisado.</strong></p>
+      </div>
+      <div>
+        <h4 class="mono-head">Fase 2 — Caja Rígida</h4>
+        <p>En versión futura, caja rígida negra con tapa separada (tipo caja de zapatos de alta gama). Interior forrado en papel de seda negro o en material textil. El interior de la tapa puede tener el concepto visual de la marca impreso en tinta roja muy sutil.</p>
+        <p>La caja debe tener peso y solidez al abrirse. El sonido que hace al cerrarse importa. <strong>Cada detalle debe comunicar que lo que está adentro vale.</strong></p>
+      </div>
+    </div>
+
+    <h4 class="mono-head">La Cinta — EZRAEZRAEZRA</h4>
+    <p>Elemento de empaque identitario: cinta adhesiva o cinta de papel con la repetición continua de "EZRAEZRAEZRA" en tipografía mono o display. <strong>Sin espacios entre repeticiones.</strong> Usada para cerrar la bolsa o en un lazo sobre la caja.</p>
+    <p>Color de cinta: negro con texto rojo, o blanco con texto negro. El patrón repetitivo crea un efecto visual hipnótico que es memorable y completamente de la marca.</p>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>12 — Packaging</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 13 — EXPERIENCIA ══ -->
+<section>
+  <div class="container">
+    <div class="section-label">13 — Experiencia de Marca</div>
+    <h2 class="display">Lo que<br>Queda</h2>
+
+    <p>La experiencia de marca es lo que ocurre en los segundos, minutos y semanas después de que alguien interactúa con EZRA por primera vez. Es lo que hace que alguien vuelva. Es lo que hace que alguien recomiende sin que se lo pidan. <strong>Es la suma de todas las decisiones correctas tomadas en producción, diseño y packaging.</strong></p>
+
+    <div class="pull-quote">
+      <p>"La marca no es el logo.<br>La marca es lo que recuerdas cuando ya no la tienes puesta."</p>
+    </div>
+
+    <h3 class="serif">Los Cuatro Pilares de la Experiencia EZRA</h3>
+
+    <h4 class="mono-head">01 — Limpio</h4>
+    <p>Todo en EZRA debe sentirse limpio. Las costuras limpias, los bordes limpios, el color limpio, el espacio visual limpio. Limpio no es estéril: es preciso. Es que no haya nada sobrando, nada que deba justificarse. <strong>Cuando alguien saca la prenda de la bolsa, no debe ver ningún detalle que no debería estar ahí.</strong></p>
+
+    <h4 class="mono-head">02 — Pesado</h4>
+    <p>El peso es sensación de valor. La tela pesa, el packaging pesa, la caja pesa. Incluso el silencio de la comunicación de la marca tiene peso. <strong>EZRA debe sentirse como algo que costó algo</strong> —en tiempo, en criterio, en dinero— antes de que nadie pregunte el precio.</p>
+
+    <h4 class="mono-head">03 — Intencional</h4>
+    <p>Cada elemento de EZRA debe parecer que fue colocado exactamente donde está porque alguien tomó una decisión. Nada parece accidental. Nada parece improvisado. El bordado está donde está porque alguien pensó por qué va ahí. El packaging se ve como se ve porque alguien diseñó por qué debe verse así. <strong>La intencionalidad es la forma más directa de comunicar profesionalismo.</strong></p>
+
+    <h4 class="mono-head">04 — Silenciosamente Agresivo</h4>
+    <p>EZRA no intimida con logos gigantes ni con colores estridentes. Intimida con calidad, con precisión, con ese detalle en rojo que aparece donde nadie espera. La agresividad de EZRA es silenciosa: la sientes cuando la presencia de la prenda es tan fuerte que no puedes ignorarla, aunque sea completamente negra y completamente simple.</p>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>13 — Experiencia</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 14 — TALLER ══ -->
+<div class="taller-section">
+  <div class="container">
+    <div class="section-label">14 — Instrucciones para el Taller</div>
+    <h2 class="display">Para<br>Quien<br>Construye</h2>
+
+    <p style="color:#333">Este apartado está redactado directamente para la costurera o el taller de confección. El resto del documento es contexto y filosofía; esta sección es instrucción directa. Por favor leer completo antes de comenzar la producción.</p>
+
+    <hr class="rule" style="border-color:#ddd">
+
+    <h3 class="serif" style="color:#111">Qué Buscamos Lograr</h3>
+    <p>El objetivo de esta primera producción es crear <strong>dos prendas de referencia</strong> —un pantalón jogger y un crewneck— que funcionen como muestra de marca y estándar de calidad para producciones futuras. No buscamos cantidad. Buscamos que cada prenda producida sea exactamente lo que se describe en este documento.</p>
+
+    <p>La marca se llama <strong>EZRA</strong> y su promesa es ropa premium construida con criterio. Cada prenda que sale del taller lleva esa promesa. Por eso el nivel de detalle importa.</p>
+
+    <hr class="rule" style="border-color:#ddd">
+
+    <h3 class="serif" style="color:#111">Lo que Se Debe Lograr — Checklist de Producción</h3>
+
+    <h4 class="mono-head">Materiales</h4>
+    <ul class="checklist checklist-check">
+      <li>Tela: French Terry o Fleece 100% algodón, 350–400 GSM mínimo</li>
+      <li>Color: negro profundo mate — pedir muestra física y aprobar antes de comprar</li>
+      <li>Canalé: alta densidad para pretina y puños — que no pierda forma</li>
+      <li>Hilo de costura: negro, mismo tono que la tela</li>
+      <li>Hilo de bordado: rojo carmesí oscuro, brillo sutil (rayón o poliéster calidad)</li>
+      <li>Cordón pretina: 8–10mm, negro, textura redonda o plana</li>
+    </ul>
+
+    <h4 class="mono-head">Construcción — Pantalón</h4>
+    <ul class="checklist checklist-check">
+      <li>Pretina ancha: 6–8cm, entretela interna, no debe doblarse</li>
+      <li>Cordón oculto interior, ojal central reforzado</li>
+      <li>Fit: relaxed en caderas/muslos, tapering desde rodilla</li>
+      <li>Puños tobillo: canalé denso 4–5cm, bien tensado</li>
+      <li>Costuras laterales: planas o doble costura</li>
+      <li>Interior terminado: overlock en todos los bordes</li>
+      <li>Bolsillos laterales: apertura limpia, sin protuberancias</li>
+    </ul>
+
+    <h4 class="mono-head">Construcción — Polerón (Crewneck)</h4>
+    <ul class="checklist checklist-check">
+      <li>Cuello canalé doble, firme, bien terminado</li>
+      <li>Hombros ligeramente dropped (1–2cm bajo punto natural)</li>
+      <li>Largo cuerpo: cubre pretina del pantalón 2–4cm al estar puesto</li>
+      <li>Mangas largas con puño canalé 5–6cm</li>
+      <li>Dobladillo inferior firme, que caiga recto</li>
+      <li>Costuras de hombro y sisa: reforzadas</li>
+      <li>Sin costuras visibles en exterior (o planas si son visibles)</li>
+    </ul>
+
+    <h4 class="mono-head">Bordado</h4>
+    <ul class="checklist checklist-check">
+      <li>Archivo de digitalización: profesional, .DST o .PES</li>
+      <li>Hilo rojo carmesí con brillo sutil</li>
+      <li>Densidad: cobertura completa, puntadas visibles individualmente</li>
+      <li>Pantalón: centro pelvis, 3–4cm bajo pretina, tamaño 5–7cm</li>
+      <li>Polerón: centro pecho, altura esternón, tamaño 6–8cm</li>
+      <li>Probar bordado en retazo de tela antes de bordar prenda final</li>
+      <li>Verificar que el bordado no distorsione la superficie de la tela</li>
+    </ul>
+
+    <hr class="rule" style="border-color:#ddd">
+
+    <h3 class="serif" style="color:#111">Lo que Se Debe Evitar</h3>
+
+    <div class="warning-box">
+      <div class="warning-title">Errores que Destruyen el Producto</div>
+      <p><strong>En tela:</strong> No usar telas de menos de 300 GSM. No usar negro grisáceo o azulado. No usar telas con acabado brillante.<br><br>
+      <strong>En construcción:</strong> No dejar costuras interiores sin terminar. No usar pretinas delgadas que se doblen. No dejar canalé suelto o sin tensión adecuada.<br><br>
+      <strong>En bordado:</strong> No comenzar el bordado en prenda final sin prueba previa. No usar hilo de bordado de baja calidad. No colocar el bordado fuera de las medidas especificadas.<br><br>
+      <strong>En terminaciones:</strong> No dejar hilos sueltos visibles. No dejar costuras simétricamente incorrectas. No entregar prenda con manchas o marcas de tiza sin limpiar.</p>
+    </div>
+
+    <h3 class="serif" style="color:#111">Nivel de Detalle Esperado</h3>
+    <p>El nivel de detalle esperado en estas prendas es el de una prenda de entre <strong>USD 150–250</strong> de retail. Eso no significa que sea imposible de producir en este taller: significa que los estándares de revisión y terminación deben estar a ese nivel.</p>
+
+    <p>Antes de entregar cualquier prenda, pedimos que el taller revise punto por punto la checklist de este documento. Si hay algún elemento que no pudo ejecutarse según lo especificado, <strong>avisar antes de entregar</strong> para buscar solución en conjunto, no después.</p>
+
+    <p>La comunicación abierta durante el proceso es bienvenida. Si hay una forma técnicamente mejor de lograr algo que se describe aquí, o si hay una limitación de materiales o maquinaria, es importante saberlo desde el principio. Estamos construyendo una marca juntos: ese proceso tiene que funcionar.</p>
+
+    <div class="pull-quote">
+      <p>"Una prenda bien construida<br>no necesita excusas."</p>
+    </div>
+
+    <div class="section-footer">
+      <span>EZRA — Documento Interno</span>
+      <span>14 — Instrucciones para el Taller</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ CIERRE ══ -->
+<section class="section-dark" style="border-bottom:none">
+  <div class="container center">
+    <div style="margin-bottom:3rem">
+      <div style="font-family:var(--font-display);font-size:clamp(5rem,12vw,12rem);line-height:0.9;color:var(--white);letter-spacing:-0.01em">EZRA</div>
+      <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.3em;color:var(--grey-light);text-transform:uppercase;margin-top:1.5rem">Documento Fundacional · Versión 1.0 · Confidencial</div>
+    </div>
+    <div style="width:40px;height:1px;background:var(--red);margin:2rem auto;"></div>
+    <p class="dim italic" style="max-width:500px;margin:0 auto;font-size:1.1rem;line-height:1.8">
+      "No busques convencer.<br>
+      Construye algo tan bien hecho<br>
+      que no necesite argumento."
+    </p>
+    <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.2em;color:var(--grey-light);text-transform:uppercase;margin-top:3rem">
+      © EZRA — Todos los derechos reservados
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

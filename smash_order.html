@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smash Hard Club - Pedidos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #e32222;
+      --black: #080808;
+      --panel: #111;
+      --panel-2: #181818;
+      --line: #2d2d2d;
+      --white: #f4eadb;
+      --muted: #a89f92;
+      --good: #35c46a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--white);
+      background: var(--black);
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 420px;
+    }
+
+    .menu {
+      padding: 28px;
+      border-right: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(227, 34, 34, 0.22), transparent 34%),
+        linear-gradient(135deg, rgba(255,255,255,0.035), transparent 28%),
+        var(--black);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(44px, 7vw, 86px);
+      line-height: 0.86;
+    }
+
+    .brand span { color: var(--red); }
+
+    .tagline {
+      max-width: 560px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .burgers {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .burger-card {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), transparent 26%),
+        var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.38);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(0);
+      transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .burger-card:hover {
+      border-color: rgba(227, 34, 34, 0.62);
+      transform: translateY(-3px);
+      box-shadow: 0 34px 90px rgba(0,0,0,0.48);
+    }
+
+    .burger-head {
+      position: relative;
+      padding: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .burger-image {
+      position: relative;
+      aspect-ratio: 16 / 11;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    .burger-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.78) 100%),
+        radial-gradient(circle at 50% 45%, transparent 28%, rgba(0,0,0,0.46) 76%);
+      pointer-events: none;
+    }
+
+    .burger-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+      transition: transform 220ms ease;
+    }
+
+    .burger-card:hover .burger-image img { transform: scale(1.06); }
+
+    .burger-meta {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 14px;
+      z-index: 1;
+    }
+
+    .burger-number {
+      color: var(--red);
+      font-weight: 700;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .burger-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 34px;
+      line-height: 0.9;
+    }
+
+    .burger-vibe {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .burger-price {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      min-width: 82px;
+      padding: 8px 10px 6px;
+      text-align: center;
+      background: rgba(8,8,8,0.78);
+      border: 1px solid rgba(227,34,34,0.58);
+      font-family: "Bebas Neue", sans-serif;
+      color: var(--red);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .burger-body {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .ingredient-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .ingredient-chip {
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #0b0b0b;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .edit-toggle {
+      width: 100%;
+      height: 44px;
+      border: 1px solid rgba(227,34,34,0.65);
+      background: rgba(227,34,34,0.1);
+      color: var(--white);
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .edit-toggle:hover,
+    .edit-toggle[aria-expanded="true"] {
+      background: var(--red);
+    }
+
+    .edit-panel {
+      display: none;
+      gap: 16px;
+    }
+
+    .edit-panel.open {
+      display: grid;
+    }
+
+    .group-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .locked,
+    .choice {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: #0d0d0d;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .locked + .locked,
+    .choice + .choice { margin-top: 6px; }
+
+    .locked small,
+    .choice small {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .choice {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .choice input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--red);
+      flex: 0 0 auto;
+    }
+
+    .add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 84px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: #0d0d0d;
+      font-size: 12px;
+    }
+
+    .add-row + .add-row { margin-top: 6px; }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 26px 28px 26px;
+      align-items: center;
+      border: 1px solid var(--line);
+      height: 30px;
+    }
+
+    .stepper button {
+      height: 28px;
+      border: 0;
+      color: var(--white);
+      background: var(--panel-2);
+      cursor: pointer;
+    }
+
+    .stepper span {
+      text-align: center;
+      color: var(--white);
+      font-size: 12px;
+    }
+
+    .qty-line {
+      display: grid;
+      grid-template-columns: 94px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .add-cart {
+      height: 42px;
+      border: 0;
+      background: var(--red);
+      color: var(--white);
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .add-cart:hover { filter: brightness(1.08); }
+
+    .cart {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel-2);
+    }
+
+    .cart-head {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cart-title {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 52px;
+      line-height: 0.9;
+      margin: 0;
+    }
+
+    .cart-sub {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .customer {
+      display: grid;
+      gap: 8px;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    label {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #090909;
+      color: var(--white);
+      padding: 12px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--red);
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 22px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px dashed var(--line);
+      padding: 14px;
+    }
+
+    .cart-item {
+      border: 1px solid var(--line);
+      background: #0d0d0d;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .cart-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .cart-item-name {
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 900;
+      font-size: 23px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .cart-item-price {
+      color: var(--red);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .cart-detail {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+      margin-top: 4px;
+    }
+
+    .remove {
+      margin-top: 10px;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .cart-foot {
+      padding: 18px 22px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 42px;
+      line-height: 1;
+    }
+
+    .total span:last-child { color: var(--red); }
+
+    .send {
+      width: 100%;
+      height: 50px;
+      border: 0;
+      background: var(--good);
+      color: #041008;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .send:disabled {
+      cursor: not-allowed;
+      background: #3d3d3d;
+      color: #8a8a8a;
+    }
+
+    .hint {
+      min-height: 18px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      max-width: 320px;
+      padding: 12px 14px;
+      background: var(--red);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 1fr; }
+      .menu { border-right: 0; }
+      .cart {
+        position: static;
+        height: auto;
+        min-height: 520px;
+        border-top: 1px solid var(--line);
+      }
+      .burgers { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .menu { padding: 16px; }
+      .topbar { display: grid; }
+      .burger-name { font-size: 31px; }
+      .cart-title { font-size: 44px; }
+      .qty-line { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="menu">
+      <div class="topbar">
+        <div>
+          <div class="brand">SMASH <span>HARD</span><br>CLUB</div>
+          <p class="tagline">Elige una burger, abre edición si quieres sacar o sumar ingredientes y manda el resumen listo por WhatsApp. Pan y medallón son base fija: no se sacan. La lechuga no existe en este mapa.</p>
+        </div>
+        <div class="pill">Pedido web</div>
+      </div>
+
+      <div class="burgers" id="burgers"></div>
+    </section>
+
+    <aside class="cart">
+      <div class="cart-head">
+        <h1 class="cart-title">Pedido</h1>
+        <div class="cart-sub">El botón se activa cuando hay nombre y al menos una burger en el carrito.</div>
+      </div>
+
+      <div class="customer">
+        <label for="customerName">Nombre</label>
+        <input id="customerName" type="text" autocomplete="name" placeholder="Ej: Matías">
+        <label for="orderNote">Nota general</label>
+        <textarea id="orderNote" placeholder="Ej: retiro en local, sin servilletas extra, pago transferencia..."></textarea>
+      </div>
+
+      <div class="cart-items" id="cartItems"></div>
+
+      <div class="cart-foot">
+        <div class="total">
+          <span>Total</span>
+          <span id="total">$0</span>
+        </div>
+        <button class="send" id="sendOrder" disabled>Pedir por WhatsApp</button>
+        <div class="hint" id="hint"></div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const WHATSAPP_NUMBER = "";
+
+    const addOns = [
+      { id: "cebolla-caramelizada", name: "Cebolla caramelizada", price: 1000 },
+      { id: "cebolla-morada", name: "Cebolla morada", price: 1000 },
+      { id: "tocino", name: "Tocino", price: 1000 },
+      { id: "cebolla-frita", name: "Cebolla frita", price: 1000 },
+      { id: "queso-fresco", name: "Queso fresco", price: 1000 },
+      { id: "queso-cheddar", name: "Queso cheddar", price: 1000 },
+      { id: "medallon-carne", name: "Medallón de carne", price: 2000 }
+    ];
+
+    const burgers = [
+      {
+        id: "nashe",
+        number: "01",
+        name: "Nashe Burger",
+        price: 4000,
+        image: "assets/nashe-burger.png",
+        vibe: "La base simple y brutal. Entrada limpia, grande y directa.",
+        locked: ["Pan", "Medallón de carne"],
+        mainIngredients: ["Pan", "Carne smash", "Queso fresco", "Cebolla morada", "Salsa"],
+        removable: ["Queso fresco", "Cebolla morada"]
+      },
+      {
+        id: "doble-smash",
+        number: "02",
+        name: "Doble Smash",
+        price: 6500,
+        image: "assets/doble-smash.png",
+        vibe: "Rápida, grande, con costra y queso explotando.",
+        locked: ["Pan", "2 medallones de carne"],
+        mainIngredients: ["Pan", "Doble carne", "Cheddar", "Cebolla caramelizada", "Salsa"],
+        removable: ["Queso cheddar", "Cebolla caramelizada"]
+      },
+      {
+        id: "hard-crunch",
+        number: "03",
+        name: "Doble Hard Crunch",
+        price: 7000,
+        image: "assets/doble-hard-crunch.png",
+        vibe: "La más brígida: bacon, crunch, cortes rápidos y caos controlado.",
+        locked: ["Pan", "2 medallones de carne"],
+        mainIngredients: ["Pan", "Doble carne", "Cheddar", "Tocino", "Cebolla frita", "Salsa"],
+        removable: ["Queso cheddar", "Tocino", "Cebolla frita"]
+      }
+    ];
+
+    const state = {
+      cart: []
+    };
+
+    const money = new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0
+    });
+
+    const formatMoney = value => money.format(value).replace("CLP", "$").replace(/\s/g, "");
+
+    const burgerGrid = document.getElementById("burgers");
+    const cartItems = document.getElementById("cartItems");
+    const totalEl = document.getElementById("total");
+    const customerName = document.getElementById("customerName");
+    const orderNote = document.getElementById("orderNote");
+    const sendOrder = document.getElementById("sendOrder");
+    const hint = document.getElementById("hint");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1500);
+    }
+
+    function createStepper(value, onChange, min = 0) {
+      const wrap = document.createElement("div");
+      wrap.className = "stepper";
+
+      const minus = document.createElement("button");
+      minus.type = "button";
+      minus.textContent = "-";
+
+      const number = document.createElement("span");
+      number.textContent = value;
+
+      const plus = document.createElement("button");
+      plus.type = "button";
+      plus.textContent = "+";
+
+      minus.addEventListener("click", () => {
+        value = Math.max(min, value - 1);
+        number.textContent = value;
+        onChange(value);
+      });
+
+      plus.addEventListener("click", () => {
+        value += 1;
+        number.textContent = value;
+        onChange(value);
+      });
+
+      wrap.append(minus, number, plus);
+      return wrap;
+    }
+
+    function renderBurgers() {
+      burgerGrid.innerHTML = "";
+
+      burgers.forEach(burger => {
+        const card = document.createElement("article");
+        card.className = "burger-card";
+
+        const selectedRemovables = new Set();
+        const extras = new Map();
+        let quantity = 1;
+
+        const extraRows = addOns.map(addOn => {
+          const row = document.createElement("div");
+          row.className = "add-row";
+
+          const label = document.createElement("div");
+          label.innerHTML = `${addOn.name}<br><small>+${formatMoney(addOn.price)}</small>`;
+
+          const stepper = createStepper(0, value => {
+            if (value === 0) extras.delete(addOn.id);
+            else extras.set(addOn.id, { ...addOn, quantity: value });
+          });
+
+          row.append(label, stepper);
+          return row;
+        });
+
+        const removableChoices = burger.removable.map(item => {
+          const label = document.createElement("label");
+          label.className = "choice";
+          label.innerHTML = `<span>${item}<br><small>incluido, puedes sacarlo</small></span>`;
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.addEventListener("change", () => {
+            if (input.checked) selectedRemovables.add(item);
+            else selectedRemovables.delete(item);
+          });
+
+          label.append(input);
+          return label;
+        });
+
+        const qtyStepper = createStepper(1, value => {
+          quantity = value;
+        }, 1);
+
+        const addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.className = "add-cart";
+        addButton.textContent = "Agregar al carrito";
+        addButton.addEventListener("click", () => {
+          const extrasList = [...extras.values()];
+          const extrasTotal = extrasList.reduce((sum, item) => sum + item.price * item.quantity, 0);
+          const unitTotal = burger.price + extrasTotal;
+
+          state.cart.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            burger,
+            quantity,
+            removed: [...selectedRemovables],
+            extras: extrasList,
+            unitTotal,
+            lineTotal: unitTotal * quantity
+          });
+
+          renderCart();
+          showToast(`${burger.name} agregada`);
+        });
+
+        const locked = burger.locked.map(item => `<div class="locked"><span>${item}</span><small>fijo</small></div>`).join("");
+        const mainIngredients = burger.mainIngredients.map(item => `<span class="ingredient-chip">${item}</span>`).join("");
+
+        card.innerHTML = `
+          <div class="burger-head">
+            <div class="burger-price">${formatMoney(burger.price)}</div>
+            <div class="burger-image">
+              <img src="${burger.image}" alt="${burger.name}">
+            </div>
+            <div class="burger-meta">
+              <div class="burger-number">${burger.number}</div>
+              <div class="burger-name">${burger.name}</div>
+              <div class="burger-vibe">${burger.vibe}</div>
+            </div>
+          </div>
+          <div class="burger-body">
+            <div>
+              <p class="group-title">Ingredientes principales</p>
+              <div class="ingredient-strip">${mainIngredients}</div>
+            </div>
+            <button class="edit-toggle" type="button" aria-expanded="false">Editar ingredientes y agregar</button>
+            <div class="edit-panel">
+              <div>
+                <p class="group-title">Base fija</p>
+                ${locked}
+              </div>
+              <div class="removable-slot">
+                <p class="group-title">Puedes sacar</p>
+              </div>
+              <div class="extras-slot">
+                <p class="group-title">Puedes agregar</p>
+              </div>
+              <div class="qty-line">
+                <div class="qty-slot"></div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const editToggle = card.querySelector(".edit-toggle");
+        const editPanel = card.querySelector(".edit-panel");
+        editToggle.addEventListener("click", () => {
+          const isOpen = editPanel.classList.toggle("open");
+          editToggle.setAttribute("aria-expanded", String(isOpen));
+          editToggle.textContent = isOpen ? "Cerrar edición" : "Editar ingredientes y agregar";
+        });
+
+        const removableSlot = card.querySelector(".removable-slot");
+        removableChoices.forEach(choice => removableSlot.append(choice));
+
+        const extrasSlot = card.querySelector(".extras-slot");
+        extraRows.forEach(row => extrasSlot.append(row));
+
+        const qtyLine = card.querySelector(".qty-line");
+        const qtySlot = card.querySelector(".qty-slot");
+        qtySlot.append(qtyStepper);
+        qtyLine.append(addButton);
+
+        burgerGrid.append(card);
+      });
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = "";
+
+      if (state.cart.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Todavía no hay burgers. Arma una y agrégala al pedido.";
+        cartItems.append(empty);
+      }
+
+      state.cart.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "cart-item";
+
+        const removed = item.removed.length ? `Sin: ${item.removed.join(", ")}` : "Sin cambios";
+        const extrasText = item.extras.length
+          ? `Extras: ${item.extras.map(extra => `${extra.quantity}x ${extra.name}`).join(", ")}`
+          : "Sin extras";
+
+        el.innerHTML = `
+          <div class="cart-item-top">
+            <div class="cart-item-name">${item.quantity}x ${item.burger.name}</div>
+            <div class="cart-item-price">${formatMoney(item.lineTotal)}</div>
+          </div>
+          <div class="cart-detail">${removed}</div>
+          <div class="cart-detail">${extrasText}</div>
+        `;
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "remove";
+        remove.textContent = "Quitar";
+        remove.addEventListener("click", () => {
+          state.cart = state.cart.filter(cartItem => cartItem.id !== item.id);
+          renderCart();
+        });
+        el.append(remove);
+        cartItems.append(el);
+      });
+
+      const total = state.cart.reduce((sum, item) => sum + item.lineTotal, 0);
+      totalEl.textContent = formatMoney(total);
+      updateSendState();
+    }
+
+    function updateSendState() {
+      const hasName = customerName.value.trim().length > 0;
+      const hasItems = state.cart.length > 0;
+      sendOrder.disabled = !(hasName && hasItems);
+
+      if (!hasName && !hasItems) hint.textContent = "Falta nombre y agregar una burger.";
+      else if (!hasName) hint.textContent = "Falta el nombre para enviar.";
+      else if (!hasItems) hint.textContent = "Falta agregar una burger.";
+      else hint.textContent = "Listo para mandar el pedido por WhatsApp.";
+    }
+
+    function buildWhatsAppMessage() {
+      const total = state.cart.reduce((sum, item) => sum + item.lineTotal, 0);
+      const lines = [
+        "PEDIDO SMASH HARD CLUB",
+        "",
+        `Cliente: ${customerName.value.trim()}`,
+        ""
+      ];
+
+      state.cart.forEach((item, index) => {
+        lines.push(`${index + 1}. ${item.quantity}x ${item.burger.name}`);
+        lines.push(`Base fija: ${item.burger.locked.join(", ")}`);
+        lines.push(item.removed.length ? `Sin: ${item.removed.join(", ")}` : "Sin cambios");
+
+        if (item.extras.length) {
+          lines.push(`Agregar: ${item.extras.map(extra => `${extra.quantity}x ${extra.name}`).join(", ")}`);
+        }
+
+        lines.push(`Subtotal: ${formatMoney(item.lineTotal)}`);
+        lines.push("");
+      });
+
+      const note = orderNote.value.trim();
+      if (note) {
+        lines.push(`Nota: ${note}`);
+        lines.push("");
+      }
+
+      lines.push(`TOTAL: ${formatMoney(total)}`);
+      return lines.join("\n");
+    }
+
+    function sendToWhatsApp() {
+      if (sendOrder.disabled) return;
+
+      const message = encodeURIComponent(buildWhatsAppMessage());
+      const base = WHATSAPP_NUMBER ? `https://wa.me/${WHATSAPP_NUMBER}` : "https://wa.me/";
+      window.open(`${base}?text=${message}`, "_blank", "noopener,noreferrer");
+    }
+
+    customerName.addEventListener("input", updateSendState);
+    orderNote.addEventListener("input", updateSendState);
+    sendOrder.addEventListener("click", sendToWhatsApp);
+
+    renderBurgers();
+    renderCart();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ErosLAB — Creative System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;1,300;1,400&family=DM+Mono:wght@300;400&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+body {
+  font-family: 'JetBrains Mono', monospace;
+  color: #fff;
+  perspective: 1400px;
+  cursor: default;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #222; }
+
+/* ===== BACKGROUND LAYERS ===== */
+#bg-canvas { position: fixed; inset: 0; z-index: 0; }
+.scan-line {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+}
+.vignette {
+  position: fixed; inset: 0; z-index: 5; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.65) 100%);
+}
+.chromatic {
+  position: fixed; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(circle at 30% 50%, rgba(120,180,255,0.025), transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(255,120,120,0.025), transparent 50%);
+  mix-blend-mode: screen;
+}
+
+/* ===== HUD ===== */
+.hud-corner {
+  position: fixed; z-index: 9; pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.42rem; letter-spacing: 0.25em;
+  color: rgba(255,255,255,0.15); text-transform: uppercase;
+  line-height: 1.7;
+}
+.hud-tl { top: 1.4rem; left: 1.4rem; }
+.hud-tr { top: 1.4rem; right: 1.4rem; text-align: right; }
+.hud-bl { bottom: 1.4rem; left: 1.4rem; }
+.hud-br { bottom: 1.4rem; right: 1.4rem; text-align: right; }
+.hud-active { color: rgba(120,255,180,0.45); }
+.hud-dot {
+  display: inline-block; width: 5px; height: 5px;
+  background: #29C681; border-radius: 50%;
+  margin-right: 5px; vertical-align: middle;
+  box-shadow: 0 0 8px #29C681;
+  animation: dot 1.5s infinite;
+}
+@keyframes dot { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+.hud-bracket { position: fixed; z-index: 9; pointer-events: none; width: 18px; height: 18px; border: 1px solid rgba(255,255,255,0.18); }
+.hud-bracket.tl { top: 1rem; left: 1rem; border-right: 0; border-bottom: 0; }
+.hud-bracket.tr { top: 1rem; right: 1rem; border-left: 0; border-bottom: 0; }
+.hud-bracket.bl { bottom: 1rem; left: 1rem; border-right: 0; border-top: 0; }
+.hud-bracket.br { bottom: 1rem; right: 1rem; border-left: 0; border-top: 0; }
+
+.status-bar {
+  position: fixed; bottom: 1.2rem; left: 50%;
+  transform: translateX(-50%); font-size: 0.4rem;
+  letter-spacing: 0.4em; color: rgba(255,255,255,0.18);
+  text-transform: uppercase; z-index: 100; white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ===== ENTRY ===== */
+#entry {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.8s ease, filter 0.8s ease;
+}
+.lab-title {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 200; letter-spacing: 0.5em;
+  color: #fff; text-transform: uppercase;
+  margin-bottom: 0.2em;
+  text-shadow:
+    0 0 30px rgba(255,255,255,0.15),
+    -1.5px 0 0 rgba(255,80,80,0.35),
+    1.5px 0 0 rgba(80,180,255,0.35);
+  animation: titleFlicker 5s ease-in-out infinite;
+}
+@keyframes titleFlicker {
+  0%,100% { text-shadow: 0 0 30px rgba(255,255,255,0.15), -1.5px 0 0 rgba(255,80,80,0.35), 1.5px 0 0 rgba(80,180,255,0.35); }
+  50% { text-shadow: 0 0 60px rgba(255,255,255,0.3), -2.5px 0 0 rgba(255,80,80,0.5), 2.5px 0 0 rgba(80,180,255,0.5); }
+}
+.lab-sub {
+  font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+  letter-spacing: 0.4em; color: #555;
+  text-transform: uppercase; margin-bottom: 3rem;
+}
+#enter-btn {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #2a2a2a; color: #999;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.35em;
+  text-transform: uppercase; padding: 1rem 2.8rem;
+  cursor: pointer; transition: all 0.4s cubic-bezier(0.2,0.7,0.2,1);
+  backdrop-filter: blur(8px); position: relative; overflow: hidden;
+}
+#enter-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 70%);
+  opacity: 0; transition: opacity 0.4s;
+}
+#enter-btn:hover { border-color: #888; color: #fff; transform: translateY(-1px); box-shadow: 0 10px 40px rgba(255,255,255,0.06); }
+#enter-btn:hover::before { opacity: 1; }
+
+/* ===== ZOOM TUNNEL ===== */
+#zoom-overlay { position: fixed; inset: 0; z-index: 20; display: none; background: #000; }
+.tunnel-canvas { position: absolute; inset: 0; }
+
+/* ===== CORE / HUB ===== */
+#core {
+  position: fixed; inset: 0; z-index: 30;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+#core.active { display: flex; animation: coreIn 1.2s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+@keyframes coreIn {
+  from { opacity: 0; transform: scale(1.06); filter: blur(10px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+.core-header {
+  font-size: 0.55rem; letter-spacing: 0.5em;
+  color: #444; text-transform: uppercase;
+  margin-bottom: 3rem; text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.core-header span { color: #999; }
+.systems-label {
+  font-size: 0.5rem; letter-spacing: 0.45em;
+  color: #2a2a2a; text-transform: uppercase;
+  margin-bottom: 1.5rem; max-width: 720px;
+  width: 100%; align-self: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.systems-grid { display: flex; flex-direction: column; max-width: 720px; width: 100%; }
+.system-item {
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 1.6rem 1rem; border-bottom: 1px solid #0f0f0f;
+  cursor: pointer; transition: all 0.5s cubic-bezier(0.2,0.7,0.2,1);
+  animation: slideIn 0.7s ease both;
+  position: relative;
+}
+.system-item::before {
+  content: ''; position: absolute; left: 0; top: 0;
+  width: 0; height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  opacity: 0.06; transition: width 0.5s;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+.system-item:hover { border-bottom-color: var(--accent); transform: translateX(8px); }
+.system-item:hover::before { width: 100%; }
+.system-item:hover .sys-name { color: #fff; letter-spacing: 0.3em; }
+.system-item:hover .sys-arrow { opacity: 1; transform: translateX(8px); color: var(--accent); }
+.system-item:hover .sys-accent { width: 32px; opacity: 1; }
+.system-item:hover .sys-tag { color: var(--accent); opacity: 1; }
+.system-item:hover .sys-glow { opacity: 0.7; }
+.sys-glow {
+  position: absolute; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, var(--accent), transparent 70%);
+  opacity: 0; transition: opacity 0.5s;
+  filter: blur(25px); pointer-events: none;
+}
+.sys-id { font-size: 0.5rem; letter-spacing: 0.3em; color: #2a2a2a; min-width: 2.8rem; font-family: 'JetBrains Mono', monospace; }
+.sys-accent { display: block; width: 0; height: 1px; background: var(--accent); transition: all 0.4s; opacity: 0; }
+.sys-name {
+  font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+  letter-spacing: 0.25em; color: #3a3a3a;
+  text-transform: uppercase; font-weight: 300;
+  flex: 1; transition: all 0.4s;
+}
+.sys-tag { font-size: 0.45rem; letter-spacing: 0.35em; color: #1e1e1e; text-transform: uppercase; display: none; font-family: 'JetBrains Mono', monospace; transition: all 0.4s; opacity: 0.4; }
+@media (min-width: 500px) { .sys-tag { display: block; } }
+.sys-arrow { font-size: 0.7rem; color: #444; opacity: 0; transition: all 0.4s; }
+
+/* ===== EZRA TRANSITION ===== */
+#ezra-trans {
+  position: fixed; inset: 0; z-index: 40;
+  display: none; background: #030303; overflow: hidden;
+  perspective: 1200px;
+}
+.ezra-mist { position: absolute; inset: 0; }
+.ezra-thread {
+  position: absolute; top: 50%; left: 0; width: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, #C0151A 30%, #ff3030 50%, #8B0000 70%, transparent);
+  box-shadow: 0 0 40px rgba(192,21,26,0.8), 0 0 80px rgba(192,21,26,0.4);
+}
+.ezra-thread-2, .ezra-thread-3 {
+  position: absolute; left: 0; width: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(192,21,26,0.4), transparent);
+}
+.ezra-thread-2 { top: calc(50% - 40px); }
+.ezra-thread-3 { top: calc(50% + 40px); }
+.ezra-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.95) 75%); opacity: 0; }
+.ezra-letters {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(5rem, 14vw, 12rem);
+  color: #F5F0EB; letter-spacing: 0.02em; line-height: 0.88;
+  display: flex; gap: 0.05em; opacity: 0;
+}
+.ezra-letters span {
+  display: inline-block;
+  transform: translateY(80px) rotateX(50deg); opacity: 0;
+  text-shadow: -2px 0 0 rgba(192,21,26,0.6), 2px 0 0 rgba(255,255,255,0.15), 0 0 30px rgba(0,0,0,0.8);
+}
+.ezra-letters span.r {
+  color: #C0151A;
+  text-shadow: -2px 0 0 rgba(255,40,40,0.7), 2px 0 0 rgba(80,0,0,0.8), 0 0 50px rgba(192,21,26,0.6);
+}
+.ezra-whisper {
+  position: absolute; bottom: 16%; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: clamp(0.95rem, 1.8vw, 1.3rem);
+  color: rgba(245,240,235,0.75); letter-spacing: 0.06em;
+  text-align: center; opacity: 0; line-height: 1.4;
+}
+.ezra-noise-fx {
+  position: absolute; inset: 0; opacity: 0.07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ===== EZRA PAGE (iframe wrapper) ===== */
+#ezra-page {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #030303;
+  flex-direction: column;
+}
+#ezra-page.active { display: flex; animation: fadeIn 0.6s ease; }
+.back-btn {
+  position: fixed; top: 1.5rem; left: 1.5rem;
+  background: transparent; border: none; color: #5A5A5A;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  cursor: pointer; z-index: 100; transition: color 0.3s;
+}
+.ezra-back:hover { color: #C0151A; }
+.smash-back:hover { color: #df1717; }
+.bot-back:hover { color: #2B82F0; }
+
+/* ===== EZRA HUB (sub-menu) ===== */
+#ezra-hub {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #030303; color: #F5F0EB;
+  font-family: 'Cormorant Garamond', serif;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+#ezra-hub.active { display: flex; animation: hubIn 1s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+@keyframes hubIn {
+  from { opacity: 0; transform: scale(1.04); filter: blur(8px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+.ezra-hub-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(140,0,0,0.18) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 50% at 50% 80%, rgba(100,0,0,0.1) 0%, transparent 60%);
+}
+.ezra-hub-noise {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+.ezra-hub-container {
+  position: relative; z-index: 2;
+  text-align: center;
+  max-width: 900px; width: 100%;
+}
+.ezra-hub-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.4em;
+  color: #5A5A5A; text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.ezra-hub-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(4rem, 12vw, 10rem);
+  line-height: 0.88; color: #F5F0EB;
+  letter-spacing: -0.01em; margin-bottom: 1rem;
+  text-shadow: 0 0 60px rgba(192,21,26,0.15);
+}
+.ezra-hub-title span { color: #C0151A; text-shadow: 0 0 40px rgba(192,21,26,0.5); }
+.ezra-hub-divider {
+  width: 50px; height: 1px; background: #C0151A;
+  margin: 1.5rem auto 2rem;
+  box-shadow: 0 0 12px rgba(192,21,26,0.6);
+}
+.ezra-hub-instruction {
+  font-style: italic; font-size: 1rem;
+  color: #C8C0B8; margin-bottom: 3rem;
+  letter-spacing: 0.04em;
+}
+.ezra-hub-options {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: #2E2E2E; border: 1px solid #2E2E2E;
+}
+@media (min-width: 700px) { .ezra-hub-options { grid-template-columns: 1fr 1fr; } }
+.ezra-hub-option {
+  background: #060606;
+  padding: 2.5rem 2rem;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  transition: background 0.4s;
+  display: flex; flex-direction: column;
+  min-height: 220px;
+  overflow: hidden;
+}
+.ezra-hub-option::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 0; height: 1px; background: #C0151A;
+  transition: width 0.6s cubic-bezier(0.2,0.7,0.2,1);
+  box-shadow: 0 0 12px rgba(192,21,26,0.6);
+}
+.ezra-hub-option::after {
+  content: ''; position: absolute; bottom: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(192,21,26,0.2), transparent 70%);
+  filter: blur(20px); opacity: 0;
+  transition: opacity 0.4s;
+}
+.ezra-hub-option:hover { background: #0a0a0a; }
+.ezra-hub-option:hover::before { width: 100%; }
+.ezra-hub-option:hover::after { opacity: 1; }
+.ezra-hub-option:hover .opt-name { color: #F5F0EB; letter-spacing: 0.04em; }
+.ezra-hub-option:hover .opt-arrow { opacity: 1; transform: translateX(6px); color: #C0151A; }
+.opt-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.35em;
+  color: #C0151A; text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.opt-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: #C8C0B8; letter-spacing: 0.02em;
+  line-height: 1; margin-bottom: 1rem;
+  transition: all 0.4s;
+}
+.opt-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 1rem;
+  color: #5A5A5A; line-height: 1.5;
+  flex: 1; max-width: 320px;
+}
+.opt-arrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  color: #5A5A5A; opacity: 0.4;
+  transition: all 0.4s;
+  align-self: flex-end;
+  margin-top: 1rem;
+}
+
+/* ===== EZRA WEB (iframe wrapper) ===== */
+#ezra-web {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #030303;
+  flex-direction: column;
+}
+#ezra-web.active { display: flex; animation: fadeIn 0.6s ease; }
+.ezra-web-header {
+  background: #030303;
+  border-bottom: 1px solid rgba(192,21,26,0.2);
+  padding: 1rem 1.5rem 1rem 4.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.35em;
+  color: #5A5A5A; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.ezra-web-header .live { color: #C0151A; }
+.ezra-web-header .live::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; background: #C0151A;
+  border-radius: 50%; margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: 0 0 8px #C0151A;
+  animation: dot 1.5s infinite;
+}
+.ezra-web-frame { flex: 1; position: relative; background: #000; }
+.ezra-web-frame iframe {
+  width: 100%; height: 100%;
+  border: 0; display: block;
+}
+.ezra-web-fallback {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  pointer-events: none;
+  font-family: 'Cormorant Garamond', serif;
+  color: #5A5A5A; font-style: italic;
+}
+.ezra-web-fallback.show { display: flex; }
+.ezra-web-fallback .fb-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.3em;
+  color: #C0151A; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.ezra-web-fallback code {
+  font-family: 'DM Mono', monospace;
+  background: rgba(192,21,26,0.1);
+  padding: 2px 8px; color: #F5F0EB;
+  font-size: 0.85em; border: 1px solid rgba(192,21,26,0.3);
+}
+.ezra-web-fallback p { margin: 0.5rem 0; max-width: 500px; line-height: 1.6; }
+
+/* ===== SMASH TRANSITION ===== */
+#smash-trans {
+  position: fixed; inset: 0; z-index: 40; display: none;
+  background: #080807; overflow: hidden; perspective: 800px;
+}
+.smash-flash { position: absolute; inset: 0; background: #df1717; opacity: 0; mix-blend-mode: screen; }
+.smash-flash-2 { position: absolute; inset: 0; background: #fff; opacity: 0; }
+.smash-stamp {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0, 1.4);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 11vw, 9rem);
+  color: #eee4d1; line-height: 0.85; text-align: center;
+  letter-spacing: -0.01em; opacity: 0;
+  text-shadow: 4px 4px 0 #df1717;
+}
+.smash-stamp .red {
+  color: #df1717;
+  text-shadow: 4px 4px 0 #eee4d1;
+}
+.smash-stamp.flicker {
+  animation: neonFlicker 0.6s steps(2) 1;
+}
+@keyframes neonFlicker {
+  0%,100% { opacity: 1; }
+  20% { opacity: 0.6; }
+  40% { opacity: 1; }
+  60% { opacity: 0.4; }
+  80% { opacity: 1; }
+}
+.smash-pulse-ring {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 200px; height: 200px; border-radius: 50%;
+  border: 1px solid rgba(223,23,23,0.4); opacity: 0;
+}
+.smash-bars { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.smash-bar { flex: 1; background: #080807; transform: scaleX(0); transform-origin: left; }
+.smash-bar:nth-child(even) { transform-origin: right; background: #df1717; }
+.smash-grid-bg {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(90deg, rgba(238,228,209,0.04) 1px, transparent 1px),
+                    linear-gradient(0deg, rgba(238,228,209,0.04) 1px, transparent 1px);
+  background-size: 32px 32px; opacity: 0;
+}
+.smash-radial { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at center, rgba(223,23,23,0.18), transparent 50%); }
+.smash-shockwave {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 300px; height: 300px; border-radius: 50%;
+  border: 2px solid rgba(223,23,23,0.6); opacity: 0;
+}
+.smash-noise {
+  position: absolute; inset: 0; opacity: 0; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ===== SMASH HUB (sub-menu) ===== */
+#smash-hub {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080807; color: #eee4d1;
+  font-family: 'IBM Plex Mono', monospace;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+#smash-hub.active { display: flex; animation: hubIn 1s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+.smash-hub-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(223,23,23,0.1) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 50% at 50% 80%, rgba(223,23,23,0.06) 0%, transparent 60%);
+}
+.smash-hub-grid-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background-image: linear-gradient(90deg, rgba(238,228,209,0.025) 1px, transparent 1px),
+                    linear-gradient(0deg, rgba(238,228,209,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.smash-hub-container {
+  position: relative; z-index: 2;
+  text-align: center;
+  max-width: 900px; width: 100%;
+}
+.smash-hub-tag {
+  font-size: 0.6rem; letter-spacing: 0.4em;
+  color: rgba(238,228,209,0.4); text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.smash-hub-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 11vw, 8rem);
+  line-height: 0.85; letter-spacing: -0.005em;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 60px rgba(223,23,23,0.2);
+}
+.smash-hub-title .red { color: #df1717; text-shadow: 0 0 40px rgba(223,23,23,0.5); }
+.smash-hub-divider { width: 50px; height: 2px; background: #df1717; margin: 1.5rem auto 2rem; box-shadow: 0 0 12px rgba(223,23,23,0.6); }
+.smash-hub-instruction {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem; color: rgba(238,228,209,0.6);
+  margin-bottom: 3rem; letter-spacing: 0.05em;
+}
+.smash-hub-options {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: rgba(238,228,209,0.16);
+  border: 1px solid rgba(238,228,209,0.16);
+}
+@media (min-width: 700px) { .smash-hub-options { grid-template-columns: 1fr 1fr; } }
+.smash-hub-option {
+  background: #0c0c0b;
+  padding: 2.5rem 2rem;
+  cursor: pointer; text-align: left;
+  position: relative; transition: background 0.4s;
+  display: flex; flex-direction: column;
+  min-height: 220px; overflow: hidden;
+}
+.smash-hub-option::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 0; height: 2px; background: #df1717;
+  transition: width 0.6s cubic-bezier(0.2,0.7,0.2,1);
+  box-shadow: 0 0 12px rgba(223,23,23,0.6);
+}
+.smash-hub-option:hover { background: #131312; }
+.smash-hub-option:hover::before { width: 100%; }
+.smash-hub-option:hover .s-opt-name { color: #eee4d1; }
+.smash-hub-option:hover .s-opt-arrow { opacity: 1; transform: translateX(6px); color: #df1717; }
+.s-opt-num { font-size: 0.65rem; letter-spacing: 0.35em; color: #df1717; text-transform: uppercase; margin-bottom: 1.5rem; }
+.s-opt-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: rgba(238,228,209,0.6); letter-spacing: 0.02em;
+  line-height: 1; margin-bottom: 1rem; transition: all 0.4s;
+}
+.s-opt-desc {
+  font-size: 0.85rem; color: rgba(238,228,209,0.5);
+  line-height: 1.6; flex: 1; max-width: 320px;
+}
+.s-opt-arrow {
+  font-size: 0.75rem; color: rgba(238,228,209,0.3);
+  opacity: 0.4; transition: all 0.4s;
+  align-self: flex-end; margin-top: 1rem;
+  letter-spacing: 0.2em;
+}
+
+/* ===== SMASH PAGE (iframe → smash_manifest.html) ===== */
+#smash-page {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080807; flex-direction: column;
+}
+#smash-page.active { display: flex; animation: fadeIn 0.6s ease; }
+.smash-iframe-header {
+  background: #080807;
+  border-bottom: 1px solid rgba(223,23,23,0.3);
+  padding: 1rem 1.5rem 1rem 4.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.35em;
+  color: rgba(238,228,209,0.4); text-transform: uppercase;
+  flex-shrink: 0;
+}
+.smash-iframe-header .live { color: #df1717; }
+.smash-iframe-header .live::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; background: #df1717;
+  border-radius: 50%; margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: 0 0 8px #df1717;
+  animation: dot 1.5s infinite;
+}
+.smash-iframe-frame { flex: 1; position: relative; background: #000; }
+.smash-iframe-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+.smash-iframe-fallback {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  pointer-events: none;
+  font-family: 'IBM Plex Mono', monospace;
+  color: rgba(238,228,209,0.5);
+}
+.smash-iframe-fallback.show { display: flex; }
+.smash-iframe-fallback .fb-tag {
+  font-size: 0.6rem; letter-spacing: 0.3em;
+  color: #df1717; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.smash-iframe-fallback code {
+  background: rgba(223,23,23,0.1); padding: 2px 8px;
+  color: #eee4d1; font-size: 0.85em;
+  border: 1px solid rgba(223,23,23,0.3);
+}
+.smash-iframe-fallback p { margin: 0.5rem 0; max-width: 500px; line-height: 1.6; font-size: 0.85rem; }
+
+/* ===== SMASH ORDER (iframe → smash_order.html) ===== */
+#smash-order {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080807; flex-direction: column;
+}
+#smash-order.active { display: flex; animation: fadeIn 0.6s ease; }
+
+/* ===== BOT HUB (sub-menu) ===== */
+#bot-hub {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080808; color: #F5F0EB;
+  font-family: 'Inter', sans-serif;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+}
+#bot-hub.active { display: flex; animation: hubIn 1s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+.bot-hub-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0/64px 64px,
+              radial-gradient(circle at 76% 18%, rgba(43,130,240,0.15), transparent 40%),
+              radial-gradient(circle at 18% 86%, rgba(139,192,255,0.06), transparent 30%);
+}
+.bot-hub-container {
+  position: relative; z-index: 2;
+  text-align: center;
+  max-width: 900px; width: 100%;
+}
+.bot-hub-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.4em;
+  color: rgba(245,240,235,0.32); text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.bot-hub-title {
+  font-size: clamp(3rem, 9vw, 6rem);
+  line-height: 0.86; letter-spacing: -0.06em;
+  font-weight: 300; margin-bottom: 1rem;
+  text-shadow: 0 0 60px rgba(43,130,240,0.15);
+}
+.bot-hub-title span { color: #2B82F0; text-shadow: 0 0 40px rgba(43,130,240,0.5); }
+.bot-hub-divider { width: 50px; height: 1px; background: #2B82F0; margin: 1.5rem auto 2rem; box-shadow: 0 0 12px rgba(43,130,240,0.6); }
+.bot-hub-instruction {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: rgba(245,240,235,0.5);
+  margin-bottom: 3rem; letter-spacing: 0.05em;
+}
+.bot-hub-options {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: rgba(245,240,235,0.13);
+  border: 1px solid rgba(245,240,235,0.13);
+}
+@media (min-width: 700px) { .bot-hub-options { grid-template-columns: 1fr 1fr; } }
+.bot-hub-option {
+  background: #0A0D12;
+  padding: 2.5rem 2rem;
+  cursor: pointer; text-align: left;
+  position: relative; transition: background 0.4s;
+  display: flex; flex-direction: column;
+  min-height: 220px; overflow: hidden;
+}
+.bot-hub-option::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 0; height: 2px; background: #2B82F0;
+  transition: width 0.6s cubic-bezier(0.2,0.7,0.2,1);
+  box-shadow: 0 0 12px rgba(43,130,240,0.6);
+}
+.bot-hub-option:hover { background: #0d1219; }
+.bot-hub-option:hover::before { width: 100%; }
+.bot-hub-option:hover .b-opt-name { color: #F5F0EB; }
+.bot-hub-option:hover .b-opt-arrow { opacity: 1; transform: translateX(6px); color: #2B82F0; }
+.b-opt-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.35em; color: #2B82F0; text-transform: uppercase; margin-bottom: 1.5rem; }
+.b-opt-name {
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  color: rgba(245,240,235,0.6); letter-spacing: -0.03em;
+  line-height: 1; margin-bottom: 1rem; transition: all 0.4s;
+  font-weight: 300;
+}
+.b-opt-desc {
+  font-size: 0.85rem; color: rgba(245,240,235,0.5);
+  line-height: 1.6; flex: 1; max-width: 320px;
+}
+.b-opt-arrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; color: rgba(245,240,235,0.3);
+  opacity: 0.4; transition: all 0.4s;
+  align-self: flex-end; margin-top: 1rem;
+  letter-spacing: 0.2em;
+}
+
+/* ===== BOT DOCUMENT (iframe → ezrabot_manifest.html) ===== */
+#bot-document {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080808; flex-direction: column;
+}
+#bot-document.active { display: flex; animation: fadeIn 0.6s ease; }
+.bot-iframe-header {
+  background: #080808;
+  border-bottom: 1px solid rgba(43,130,240,0.3);
+  padding: 1rem 1.5rem 1rem 4.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.35em;
+  color: rgba(245,240,235,0.32); text-transform: uppercase;
+  flex-shrink: 0;
+}
+.bot-iframe-header .live { color: #2B82F0; }
+.bot-iframe-header .live::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px; background: #2B82F0;
+  border-radius: 50%; margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: 0 0 8px #2B82F0;
+  animation: dot 1.5s infinite;
+}
+.bot-iframe-frame { flex: 1; position: relative; background: #000; }
+.bot-iframe-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+.bot-iframe-fallback {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(245,240,235,0.5);
+}
+.bot-iframe-fallback.show { display: flex; }
+.bot-iframe-fallback .fb-tag {
+  font-size: 0.6rem; letter-spacing: 0.3em;
+  color: #2B82F0; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.bot-iframe-fallback code {
+  background: rgba(43,130,240,0.1); padding: 2px 8px;
+  color: #F5F0EB; font-size: 0.85em;
+  border: 1px solid rgba(43,130,240,0.3);
+}
+.bot-iframe-fallback p { margin: 0.5rem 0; max-width: 500px; line-height: 1.6; font-size: 0.85rem; }
+
+/* ===== SMASH PAGE OLD STYLES (still used by custom content if any) ===== */
+.smash-tag-top { font-size: 0.65rem; letter-spacing: 0.3em; color: rgba(238,228,209,0.4); text-transform: uppercase; margin-bottom: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.smash-h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3.5rem, 11vw, 9rem); line-height: 0.88; letter-spacing: -0.005em; margin-bottom: 2rem; text-shadow: 0 0 80px rgba(223,23,23,0.2); }
+.smash-h1 .red { color: #df1717; text-shadow: 0 0 30px rgba(223,23,23,0.5); }
+.smash-lead { font-size: 0.95rem; line-height: 1.65; color: rgba(238,228,209,0.74); max-width: 600px; margin-bottom: 4rem; }
+.smash-section { margin: 4rem 0; border-top: 1px solid rgba(238,228,209,0.16); padding-top: 3rem; }
+.smash-section-label { font-size: 0.65rem; letter-spacing: 0.3em; color: #df1717; text-transform: uppercase; margin-bottom: 1.5rem; }
+.smash-h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 0.95; color: #eee4d1; margin-bottom: 1.5rem; letter-spacing: -0.005em; }
+.smash-h2 .red { color: #df1717; }
+.smash-body { font-size: 0.92rem; line-height: 1.7; color: rgba(238,228,209,0.74); max-width: 620px; margin-bottom: 1rem; }
+.smash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: rgba(238,228,209,0.16); margin: 2rem 0; }
+.smash-cell { background: #0e0e0d; padding: 1.5rem; min-height: 140px; transition: background 0.3s; }
+.smash-cell:hover { background: #131312; }
+.smash-cell-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #df1717; line-height: 1; margin-bottom: 0.5rem; }
+.smash-cell-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: #eee4d1; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+.smash-cell-body { font-size: 0.78rem; color: rgba(238,228,209,0.6); line-height: 1.5; }
+
+/* ===== BOT TRANSITION ===== */
+#bot-trans {
+  position: fixed; inset: 0; z-index: 40; display: none;
+  background: #080808; overflow: hidden; perspective: 1500px;
+}
+.bot-grid-canvas { position: absolute; inset: 0; }
+.bot-hud-frame { position: absolute; inset: 6%; border: 1px solid rgba(43,130,240,0.15); opacity: 0; pointer-events: none; }
+.bot-hud-frame::before, .bot-hud-frame::after {
+  content: ''; position: absolute;
+  width: 30px; height: 30px;
+  border: 2px solid #2B82F0;
+}
+.bot-hud-frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.bot-hud-frame::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.bot-hud-tr { position: absolute; top: 6%; right: 6%; width: 30px; height: 30px; border-top: 2px solid #2B82F0; border-right: 2px solid #2B82F0; margin: -1px -1px 0 0; opacity: 0; }
+.bot-hud-bl { position: absolute; bottom: 6%; left: 6%; width: 30px; height: 30px; border-bottom: 2px solid #2B82F0; border-left: 2px solid #2B82F0; margin: 0 0 -1px -1px; opacity: 0; }
+.bot-terminal {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+  color: #2B82F0; line-height: 1.7; opacity: 0;
+  width: min(580px, 90%); text-align: left;
+  padding: 1.5rem 2rem;
+  border-left: 1px solid rgba(43,130,240,0.3);
+  background: linear-gradient(90deg, rgba(43,130,240,0.04), transparent);
+}
+.bot-line { opacity: 0; }
+.bot-line .ok { color: #29C681; text-shadow: 0 0 8px rgba(41,198,129,0.5); }
+.bot-line .dim { color: #555; }
+.bot-line .acc { color: #8BC0FF; }
+.bot-final {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  font-family: 'Inter', sans-serif; font-weight: 300;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: #F5F0EB; letter-spacing: -0.02em; text-align: center;
+  opacity: 0; line-height: 1.1;
+  text-shadow: 0 0 60px rgba(43,130,240,0.3);
+}
+.bot-final span { color: #2B82F0; text-shadow: 0 0 30px rgba(43,130,240,0.7); }
+.bot-data-strip {
+  position: absolute; left: 0; right: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem; color: rgba(43,130,240,0.35);
+  letter-spacing: 0.15em; white-space: nowrap;
+  opacity: 0; overflow: hidden;
+}
+.bot-strip-top { top: 8%; }
+.bot-strip-bot { bottom: 8%; }
+
+/* ===== BOT PAGE ===== */
+#bot-page {
+  position: fixed; inset: 0; z-index: 50; display: none;
+  background: #080808; color: #F5F0EB;
+  font-family: 'Inter', sans-serif; overflow-y: auto;
+}
+#bot-page.active { display: block; animation: fadeIn 0.8s ease; }
+.bot-grid-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0/64px 64px,
+              radial-gradient(circle at 76% 18%, rgba(43,130,240,0.18), transparent 40%),
+              radial-gradient(circle at 18% 86%, rgba(139,192,255,0.06), transparent 30%);
+}
+.bot-container { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 5rem 2.5rem 4rem; }
+.bot-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em; color: rgba(245,240,235,0.32); text-transform: uppercase; margin-bottom: 2rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.bot-h1 { font-size: clamp(3rem, 9vw, 7rem); line-height: 0.86; letter-spacing: -0.06em; max-width: 900px; font-weight: 400; text-shadow: 0 0 80px rgba(43,130,240,0.15); }
+.bot-h1 span { color: #2B82F0; text-shadow: 0 0 40px rgba(43,130,240,0.5); }
+.bot-lead { max-width: 720px; margin-top: 2rem; font-size: clamp(1rem, 1.8vw, 1.4rem); line-height: 1.35; letter-spacing: -0.02em; color: rgba(245,240,235,0.78); }
+.bot-lead strong { color: #F5F0EB; }
+.bot-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 3rem; }
+.bot-chip { border: 1px solid rgba(245,240,235,0.13); background: rgba(8,8,8,0.58); padding: 1rem; transition: border-color 0.3s; }
+.bot-chip:hover { border-color: rgba(43,130,240,0.4); }
+.bot-chip b { display: block; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.6rem; color: #8BC0FF; margin-bottom: 0.5rem; }
+.bot-chip span { font-size: 0.85rem; color: rgba(245,240,235,0.58); }
+.bot-section { margin: 4rem 0; }
+.bot-section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.16em; color: rgba(245,240,235,0.32); text-transform: uppercase; margin-bottom: 1rem; }
+.bot-h2 { font-size: clamp(2rem, 4.5vw, 3.5rem); line-height: 0.96; letter-spacing: -0.045em; margin-bottom: 1.5rem; font-weight: 400; }
+.bot-body { font-size: 1rem; line-height: 1.55; color: rgba(245,240,235,0.78); max-width: 620px; margin-bottom: 1rem; }
+.bot-body strong { color: #F5F0EB; }
+.bot-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 2rem; }
+.bot-card { border: 1px solid rgba(245,240,235,0.13); background: rgba(255,255,255,0.025); padding: 1.2rem; min-height: 170px; transition: all 0.3s; }
+.bot-card:hover { border-color: rgba(43,130,240,0.4); background: rgba(43,130,240,0.04); }
+.bot-card-num { color: #2B82F0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; margin-bottom: 1.5rem; }
+.bot-card h3 { font-size: 1rem; margin-bottom: 0.5rem; font-weight: 500; }
+.bot-card p { color: rgba(245,240,235,0.58); font-size: 0.85rem; line-height: 1.5; }
+
+/* === 3 AGENTS === */
+.bot-agents {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: rgba(245,240,235,0.08);
+  margin-top: 2.5rem;
+  border: 1px solid rgba(245,240,235,0.13);
+}
+@media (min-width: 760px) { .bot-agents { grid-template-columns: repeat(3, 1fr); } }
+.bot-agent {
+  background: #0A0D12;
+  padding: 1.6rem 1.4rem 1.8rem;
+  position: relative;
+  transition: background 0.4s;
+  display: flex; flex-direction: column;
+}
+.bot-agent:hover { background: #0d1219; }
+.bot-agent::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 0; height: 2px; background: #2B82F0;
+  transition: width 0.5s;
+  box-shadow: 0 0 12px rgba(43,130,240,0.6);
+}
+.bot-agent:hover::before { width: 100%; }
+.bot-agent-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.2rem;
+}
+.bot-agent-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.2em;
+  color: #8BC0FF; text-transform: uppercase;
+}
+.bot-agent-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem; letter-spacing: 0.25em;
+  color: #29C681; text-transform: uppercase;
+  display: flex; align-items: center; gap: 5px;
+}
+.agent-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #29C681; box-shadow: 0 0 8px #29C681;
+  animation: dot 1.5s infinite;
+}
+.bot-agent-name {
+  font-size: 1.4rem; font-weight: 400; letter-spacing: -0.02em;
+  color: #F5F0EB; margin-bottom: 0.3rem; line-height: 1.1;
+}
+.bot-agent-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.18em;
+  color: rgba(139,192,255,0.7); text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.bot-agent-body {
+  font-size: 0.82rem; line-height: 1.6;
+  color: rgba(245,240,235,0.65); margin-bottom: 1rem;
+  flex: 1;
+}
+.bot-agent-body strong { color: #F5F0EB; font-weight: 500; }
+.bot-agent-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: auto;
+}
+.bot-agent-tags span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.5rem; letter-spacing: 0.12em;
+  color: rgba(43,130,240,0.7);
+  background: rgba(43,130,240,0.08);
+  border: 1px solid rgba(43,130,240,0.2);
+  padding: 3px 8px; text-transform: uppercase;
+}
+
+.shake { animation: shake 0.4s; }
+@keyframes shake {
+  0%,100% { transform: translate(0,0); }
+  20% { transform: translate(-3px, 2px); }
+  40% { transform: translate(3px, -2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(2px, 2px); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="scan-line"></div>
+<div class="chromatic"></div>
+<div class="vignette"></div>
+
+<div class="hud-bracket tl"></div>
+<div class="hud-bracket tr"></div>
+<div class="hud-bracket bl"></div>
+<div class="hud-bracket br"></div>
+
+<div class="hud-corner hud-tl">
+  <div>EROSLAB / CREATIVE SYSTEM</div>
+  <div class="hud-dim">v.01 — RANCAGUA / CL</div>
+</div>
+<div class="hud-corner hud-tr">
+  <div><span class="hud-dot"></span><span class="hud-active">SYSTEM ONLINE</span></div>
+  <div class="hud-dim">SIGNAL : STABLE</div>
+</div>
+<div class="hud-corner hud-bl">
+  <div class="hud-dim">// ARCHIVE</div>
+  <div>003 SYSTEMS LOADED</div>
+</div>
+<div class="hud-corner hud-br">
+  <div class="hud-dim">FREQ 47.3HZ</div>
+  <div id="hud-time">00:00:00</div>
+</div>
+
+<!-- ENTRY -->
+<div id="entry">
+  <p class="lab-title">ErosLAB</p>
+  <p class="lab-sub">Creative System — v.01</p>
+  <button id="enter-btn" onclick="enterSystem()">↗ Enter System</button>
+</div>
+
+<!-- ZOOM TUNNEL -->
+<div id="zoom-overlay">
+  <canvas class="tunnel-canvas" id="tunnel-canvas"></canvas>
+</div>
+
+<!-- CORE -->
+<div id="core">
+  <p class="core-header">SYSTEM ACTIVE — <span>ErosLAB / CORE</span></p>
+  <p class="systems-label">// systems</p>
+  <div class="systems-grid" id="systems-grid"></div>
+</div>
+
+<!-- EZRA TRANSITION -->
+<div id="ezra-trans">
+  <canvas class="ezra-mist" id="ezra-mist"></canvas>
+  <div class="ezra-noise-fx"></div>
+  <div class="ezra-vignette" id="ezra-vign"></div>
+  <div class="ezra-thread-2" id="ezra-thread-2"></div>
+  <div class="ezra-thread-3" id="ezra-thread-3"></div>
+  <div class="ezra-thread" id="ezra-thread"></div>
+  <div class="ezra-letters" id="ezra-letters">
+    <span>E</span><span>Z</span><span class="r">R</span><span>A</span>
+  </div>
+  <div class="ezra-whisper" id="ezra-whisper">Lo que no se grita, se siente.</div>
+</div>
+
+<!-- EZRA HUB (sub-menu) -->
+<div id="ezra-hub">
+  <div class="ezra-hub-bg"></div>
+  <div class="ezra-hub-noise"></div>
+  <button class="back-btn ezra-back" onclick="goCore('ezra-hub')">← BACK / CORE</button>
+  <div class="ezra-hub-container">
+    <div class="ezra-hub-tag">SISTEMA 001 · EZRA</div>
+    <h1 class="ezra-hub-title">EZ<span>R</span>A</h1>
+    <div class="ezra-hub-divider"></div>
+    <p class="ezra-hub-instruction">Una posición frente al ruido. Presencia que marca sin gritar.</p>
+    <div class="ezra-hub-options">
+      <div class="ezra-hub-option" onclick="openEzraSection('manifest')">
+        <div class="opt-num">01 / PENSAMIENTO</div>
+        <div class="opt-name">ANÁLISIS</div>
+        <div class="opt-desc">Lo que la marca busca dejar — peso sin volumen, silencio que se queda. La doctrina detrás del sistema.</div>
+        <div class="opt-arrow">→ ENTER</div>
+      </div>
+      <div class="ezra-hub-option" onclick="openEzraSection('web')">
+        <div class="opt-num">02 / EN VIVO</div>
+        <div class="opt-name">PÁGINA WEB</div>
+        <div class="opt-desc">Donde la marca respira. La prenda en su atmósfera — lookbook, ritual, presencia.</div>
+        <div class="opt-arrow">→ ENTER</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EZRA WEB (live iframe) -->
+<div id="ezra-web">
+  <button class="back-btn ezra-back" onclick="goEzraHub()">← BACK / EZRA</button>
+  <div class="ezra-web-header">
+    <span>EZRA · PÁGINA WEB · LIVE</span>
+    <span class="live">LIVE PREVIEW</span>
+  </div>
+  <div class="ezra-web-frame">
+    <div class="ezra-web-fallback">
+      <div class="fb-tag">// FILE NOT LOADED</div>
+      <p>Para ver la web en vivo, coloca el archivo</p>
+      <p><code>ezra_web.html</code></p>
+      <p>en la misma carpeta que <code>eroslab.html</code></p>
+    </div>
+    <iframe id="ezra-iframe" title="EZRA Colección"></iframe>
+  </div>
+</div>
+
+<!-- EZRA PAGE (iframe → ezra_manifest.html) -->
+<div id="ezra-page">
+  <button class="back-btn ezra-back" onclick="goEzraHub()">← BACK / EZRA</button>
+  <div class="ezra-web-header">
+    <span>EZRA · ANÁLISIS · BRAND THINKING</span>
+    <span class="live">LIVE</span>
+  </div>
+  <div class="ezra-web-frame">
+    <div class="ezra-web-fallback">
+      <div class="fb-tag">// FILE NOT LOADED</div>
+      <p>Coloca <code>ezra_manifest.html</code> en la misma carpeta que <code>eroslab.html</code></p>
+    </div>
+    <iframe id="ezra-manifest-iframe" title="EZRA Manifiesto"></iframe>
+  </div>
+</div>
+
+<!-- SMASH TRANSITION -->
+<div id="smash-trans">
+  <div class="smash-grid-bg" id="smash-grid"></div>
+  <div class="smash-radial" id="smash-radial"></div>
+  <div class="smash-bars" id="smash-bars">
+    <div class="smash-bar"></div><div class="smash-bar"></div>
+    <div class="smash-bar"></div><div class="smash-bar"></div>
+    <div class="smash-bar"></div><div class="smash-bar"></div>
+  </div>
+  <div class="smash-noise" id="smash-noise"></div>
+  <div class="smash-flash" id="smash-flash"></div>
+  <div class="smash-flash-2" id="smash-flash-2"></div>
+  <div class="smash-shockwave" id="smash-shock"></div>
+  <div class="smash-stamp" id="smash-stamp">SMASH<br>HARD<br><span class="red">CLUB.</span></div>
+</div>
+
+<!-- SMASH HUB (sub-menu) -->
+<div id="smash-hub">
+  <div class="smash-hub-bg"></div>
+  <div class="smash-hub-grid-bg"></div>
+  <button class="back-btn smash-back" onclick="goCore('smash-hub')">← BACK / CORE</button>
+  <div class="smash-hub-container">
+    <div class="smash-hub-tag">SISTEMA 002 · SMASH HARD CLUB</div>
+    <h1 class="smash-hub-title">SMASH HARD<br><span class="red">CLUB.</span></h1>
+    <div class="smash-hub-divider"></div>
+    <p class="smash-hub-instruction">// Atmósfera nocturna que se comparte antes de probar.</p>
+    <div class="smash-hub-options">
+      <div class="smash-hub-option" onclick="openSmashSection('manifest')">
+        <div class="s-opt-num">01 / PENSAMIENTO</div>
+        <div class="s-opt-name">ANÁLISIS</div>
+        <div class="s-opt-desc">Cómo se construye el deseo. La marca como atmósfera — hambre, ritmo, edición. Lo que queremos provocar.</div>
+        <div class="s-opt-arrow">→ ENTER</div>
+      </div>
+      <div class="smash-hub-option" onclick="openSmashSection('order')">
+        <div class="s-opt-num">02 / EN VIVO</div>
+        <div class="s-opt-name">PÁGINA WEB</div>
+        <div class="s-opt-desc">El menú en vivo. Producto pesado, microcopy seco. Click & devour.</div>
+        <div class="s-opt-arrow">→ ENTER</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SMASH PAGE (iframe → smash_manifest.html) -->
+<div id="smash-page">
+  <button class="back-btn smash-back" onclick="goSmashHub()">← BACK / SMASH</button>
+  <div class="smash-iframe-header">
+    <span>SMASH HARD CLUB · ANÁLISIS · BRAND THINKING</span>
+    <span class="live">LIVE</span>
+  </div>
+  <div class="smash-iframe-frame">
+    <div class="smash-iframe-fallback">
+      <div class="fb-tag">// FILE NOT LOADED</div>
+      <p>Coloca <code>smash_manifest.html</code> en la misma carpeta que <code>eroslab.html</code></p>
+    </div>
+    <iframe id="smash-manifest-iframe" title="Smash Manifiesto"></iframe>
+  </div>
+</div>
+
+<!-- SMASH ORDER (iframe → smash_order.html) -->
+<div id="smash-order">
+  <button class="back-btn smash-back" onclick="goSmashHub()">← BACK / SMASH</button>
+  <div class="smash-iframe-header">
+    <span>SMASH HARD CLUB · PÁGINA WEB · LIVE EXPERIENCE</span>
+    <span class="live">LIVE</span>
+  </div>
+  <div class="smash-iframe-frame">
+    <div class="smash-iframe-fallback">
+      <div class="fb-tag">// FILE NOT LOADED</div>
+      <p>Coloca <code>smash_order.html</code> en la misma carpeta que <code>eroslab.html</code></p>
+    </div>
+    <iframe id="smash-order-iframe" title="Smash Order"></iframe>
+  </div>
+</div>
+
+<!-- BOT TRANSITION -->
+<div id="bot-trans">
+  <canvas class="bot-grid-canvas" id="bot-grid-canvas"></canvas>
+  <div class="bot-hud-frame" id="bot-frame"></div>
+  <div class="bot-hud-tr" id="bot-tr"></div>
+  <div class="bot-hud-bl" id="bot-bl"></div>
+  <div class="bot-data-strip bot-strip-top" id="bot-strip-top"></div>
+  <div class="bot-data-strip bot-strip-bot" id="bot-strip-bot"></div>
+  <div class="bot-terminal" id="bot-terminal">
+    <div class="bot-line" data-d="0">> <span class="dim">initializing</span> <span class="acc">EZRA_BOT.SYS</span><span class="ok"> [OK]</span></div>
+    <div class="bot-line" data-d="250">> <span class="acc">AGENT_01</span> :: <span class="dim">pattern_memory</span><span class="ok"> [ONLINE]</span></div>
+    <div class="bot-line" data-d="500">> <span class="acc">AGENT_02</span> :: <span class="dim">visual_backtest</span><span class="ok"> [ONLINE]</span></div>
+    <div class="bot-line" data-d="750">> <span class="acc">AGENT_03</span> :: <span class="dim">trade_journal</span><span class="ok"> [ONLINE]</span></div>
+    <div class="bot-line" data-d="1050">> <span class="dim">sync</span> on-chain · sentiment · psychology</div>
+    <div class="bot-line" data-d="1300">> <span class="dim">memory engine</span><span class="ok"> ACTIVE</span></div>
+    <div class="bot-line" data-d="1550">> <span class="dim">awaiting</span> pattern_match...</div>
+  </div>
+  <div class="bot-final" id="bot-final">Market memory<br>for the <span>03AM</span> edge.</div>
+</div>
+
+<!-- BOT PAGE -->
+<div id="bot-page">
+  <div class="bot-grid-bg"></div>
+  <button class="back-btn bot-back" onclick="goCore('bot')">← BACK / CORE</button>
+  <div class="bot-container">
+    <div class="bot-tag">
+      <span>SISTEMA 003 / EZRA BOT</span>
+      <span>CREATIVE AI TRADING LAB</span>
+    </div>
+    <h1 class="bot-h1">Market memory for the <span>03AM</span> edge.</h1>
+    <p class="bot-lead">EZRA no nace para reemplazar al trader. Nace para <strong>recordar mejor que el ojo cansado</strong>: capturar madrugadas, comparar contexto, separar ruido de patrón.</p>
+
+    <div class="bot-meta-grid">
+      <div class="bot-chip"><b>Role</b><span>Asistente silencioso para trading discrecional.</span></div>
+      <div class="bot-chip"><b>Window</b><span>12:00 — 09:00 Chile, foco 03:00 — 06:00.</span></div>
+      <div class="bot-chip"><b>Rule</b><span>Precision over frequency. Si no se parece, no avisa.</span></div>
+    </div>
+
+    <div class="bot-section">
+      <div class="bot-section-label">01 / POSITIONING</div>
+      <h2 class="bot-h2">Un laboratorio,<br>no una máquina<br>de señales.</h2>
+      <p class="bot-body">EZRA acompaña operativa manual donde el criterio humano sigue siendo el filtro principal. Su valor está en <strong>recordar mejor que el ojo cansado</strong> — capturar madrugadas, comparar contexto, separar ruido de patrón.</p>
+      <p class="bot-body">La promesa: <strong>menos predicción, más reconocimiento contextual</strong>. No adivina el mercado — detecta cuándo una situación actual se parece a un patrón histórico validado.</p>
+    </div>
+
+    <div class="bot-section">
+      <div class="bot-section-label">02 / ARCHITECTURE — 3 AGENTES</div>
+      <h2 class="bot-h2">Tres agentes,<br>una memoria.</h2>
+      <p class="bot-body">El sistema se reparte en tres agentes especializados que trabajan en paralelo. Cada uno aporta a una memoria común que aprende con cada noche operada.</p>
+
+      <div class="bot-agents">
+        <div class="bot-agent">
+          <div class="bot-agent-head">
+            <div class="bot-agent-id">AGENT_01</div>
+            <div class="bot-agent-status"><span class="agent-dot"></span>ONLINE</div>
+          </div>
+          <h3 class="bot-agent-name">Pattern Memory</h3>
+          <p class="bot-agent-role">Data · On-chain · Psicología</p>
+          <p class="bot-agent-body">Conecta múltiples APIs on-chain — flujos de billeteras, exchanges, whales — y mide la <strong>psicología del mercado cripto</strong> en tiempo real (miedo / ambición, social, sentiment). Cruza esa data y arma una memoria de qué patrones aparecen antes de movimientos reales.</p>
+          <div class="bot-agent-tags"><span>on-chain</span><span>sentiment</span><span>fear/greed</span><span>whales</span></div>
+        </div>
+
+        <div class="bot-agent">
+          <div class="bot-agent-head">
+            <div class="bot-agent-id">AGENT_02</div>
+            <div class="bot-agent-status"><span class="agent-dot"></span>ONLINE</div>
+          </div>
+          <h3 class="bot-agent-name">Visual Backtest</h3>
+          <p class="bot-agent-role">Captura · Comparación · Validación</p>
+          <p class="bot-agent-body">Captura screenshots automáticos en momentos clave del gráfico. Compara <strong>tu análisis y tu estrategia</strong> contra el resultado real del precio. Te muestra qué lecturas funcionaron y cuáles fallaron, sin sesgo de memoria.</p>
+          <div class="bot-agent-tags"><span>screenshots</span><span>5m / 15m</span><span>strategy match</span></div>
+        </div>
+
+        <div class="bot-agent">
+          <div class="bot-agent-head">
+            <div class="bot-agent-id">AGENT_03</div>
+            <div class="bot-agent-status"><span class="agent-dot"></span>ONLINE</div>
+          </div>
+          <h3 class="bot-agent-name">Trade Journal</h3>
+          <p class="bot-agent-role">Bitácora · Análisis · Aprendizaje</p>
+          <p class="bot-agent-body">Guarda cada trade con su contexto completo — setup, razón de entrada, emoción, resultado. Mientras anotás, <strong>alimentás la IA</strong> para que detecte sesgos y patrones que tu ojo cansado de las 03 AM no llega a notar.</p>
+          <div class="bot-agent-tags"><span>journal</span><span>contexto</span><span>bias detection</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bot-section">
+      <div class="bot-section-label">03 / OUTPUT</div>
+      <h2 class="bot-h2">Lo que hace<br>la memoria.</h2>
+      <p class="bot-body">Los 3 agentes alimentan una sola memoria. A medida que crece, deja de ser archivo pasivo y se vuelve <strong>detector de similitud</strong>: cuando una situación actual se parece mucho a un patrón validado, EZRA lo dice. Si no se parece, no avisa.</p>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar" id="status-bar">SYSTEM / STANDBY</div>
+
+<script>
+const systems = [
+  { id: '001', name: 'EZRA', tag: 'Brand · Clothing', accent: '#C0151A', key: 'ezra' },
+  { id: '002', name: 'Smash Hard Club', tag: 'Atmospheric Identity', accent: '#df1717', key: 'smash' },
+  { id: '003', name: 'EZRA Bot', tag: 'Trading Lab · Memory', accent: '#2B82F0', key: 'bot' },
+];
+
+// HUD clock
+function updateClock() {
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  const s = String(d.getSeconds()).padStart(2,'0');
+  document.getElementById('hud-time').textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000); updateClock();
+
+// Mouse parallax
+let mx = 0, my = 0;
+document.addEventListener('mousemove', (e) => {
+  mx = (e.clientX / window.innerWidth - 0.5) * 2;
+  my = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// ===== BACKGROUND =====
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let particles = [];
+function resize() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * bgCanvas.width;
+    this.y = Math.random() * bgCanvas.height;
+    this.z = Math.random() * 3 + 0.3;
+    this.size = (Math.random() * 1.4 + 0.2) * this.z;
+    this.opacity = (Math.random() * 0.18 + 0.03) * this.z;
+    this.vx = (Math.random() - 0.5) * 0.18;
+    this.vy = (Math.random() - 0.5) * 0.18;
+    this.life = Math.random() * 300 + 100;
+    this.age = 0;
+  }
+  update() { this.x += this.vx + mx * this.z * 0.3; this.y += this.vy + my * this.z * 0.3; this.age++; if (this.age > this.life || this.x < 0 || this.x > bgCanvas.width) this.reset(); }
+  draw() {
+    bgCtx.globalAlpha = this.opacity * Math.sin(this.age / this.life * Math.PI);
+    bgCtx.fillStyle = '#fff';
+    bgCtx.fillRect(this.x, this.y, this.size, this.size);
+  }
+}
+for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+let gridOffset = 0;
+function drawBg() {
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  gridOffset = (gridOffset + 0.18) % 80;
+  bgCtx.strokeStyle = 'rgba(255,255,255,0.022)';
+  bgCtx.lineWidth = 0.5;
+  const ox = mx * 8, oy = my * 8;
+  for (let x = -80 + (gridOffset * 0.3) % 80 + ox; x < bgCanvas.width + 80; x += 80) {
+    bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, bgCanvas.height); bgCtx.stroke();
+  }
+  for (let y = -80 + gridOffset % 80 + oy; y < bgCanvas.height + 80; y += 80) {
+    bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(bgCanvas.width, y); bgCtx.stroke();
+  }
+  bgCtx.globalAlpha = 1;
+  particles.forEach(p => { p.update(); p.draw(); });
+  bgCtx.globalAlpha = 1;
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ===== TUNNEL =====
+const tunnelCanvas = document.getElementById('tunnel-canvas');
+const tCtx = tunnelCanvas.getContext('2d');
+
+function enterSystem() {
+  const entry = document.getElementById('entry');
+  entry.style.opacity = '0'; entry.style.pointerEvents = 'none';
+  entry.style.filter = 'blur(8px)';
+  const overlay = document.getElementById('zoom-overlay');
+  overlay.style.display = 'block';
+  tunnelCanvas.width = window.innerWidth; tunnelCanvas.height = window.innerHeight;
+  document.getElementById('status-bar').textContent = 'INITIALIZING SYSTEM...';
+
+  let progress = 0;
+  const cx = tunnelCanvas.width / 2, cy = tunnelCanvas.height / 2;
+
+  function drawTunnel() {
+    progress += 0.018;
+    tCtx.fillStyle = 'rgba(0,0,0,0.12)';
+    tCtx.fillRect(0, 0, tunnelCanvas.width, tunnelCanvas.height);
+    const layers = 18;
+    for (let i = layers; i >= 0; i--) {
+      const scale = Math.pow(1 + progress * 2, i / layers * 2.5);
+      const alpha = (1 - i / layers) * 0.18 * Math.min(progress * 3, 1);
+      const size = Math.min(tunnelCanvas.width, tunnelCanvas.height) * 0.35 * scale;
+      // chromatic offset
+      tCtx.strokeStyle = `rgba(255,80,80,${alpha * 0.5})`;
+      tCtx.lineWidth = 0.5;
+      tCtx.strokeRect(cx - size / 2 - 1, cy - size / 2, size, size);
+      tCtx.strokeStyle = `rgba(80,180,255,${alpha * 0.5})`;
+      tCtx.strokeRect(cx - size / 2 + 1, cy - size / 2, size, size);
+      tCtx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      tCtx.strokeRect(cx - size / 2, cy - size / 2, size, size);
+    }
+    if (Math.random() > 0.85) {
+      tCtx.fillStyle = `rgba(255,255,255,${Math.random() * 0.08})`;
+      tCtx.fillRect(Math.random() * tunnelCanvas.width, Math.random() * tunnelCanvas.height, Math.random() * 30, 0.5);
+    }
+    if (progress < 1.8) requestAnimationFrame(drawTunnel);
+    else setTimeout(() => { overlay.style.display = 'none'; showCore(); }, 200);
+  }
+  drawTunnel();
+}
+
+function showCore() {
+  const core = document.getElementById('core');
+  const grid = document.getElementById('systems-grid');
+  grid.innerHTML = '';
+  systems.forEach((sys, i) => {
+    const item = document.createElement('div');
+    item.className = 'system-item';
+    item.style.animationDelay = `${i * 0.12}s`;
+    item.style.setProperty('--accent', sys.accent);
+    item.innerHTML = `
+      <span class="sys-id">${sys.id}</span>
+      <span class="sys-accent"></span>
+      <span class="sys-name">${sys.name}</span>
+      <span class="sys-tag">${sys.tag}</span>
+      <span class="sys-arrow">→</span>
+      <span class="sys-glow"></span>
+    `;
+    item.addEventListener('click', () => triggerProject(sys.key));
+    grid.appendChild(item);
+  });
+  core.style.display = 'flex';
+  requestAnimationFrame(() => core.classList.add('active'));
+  document.getElementById('status-bar').textContent = 'SYSTEM / ACTIVE — EROSLAB CORE';
+}
+
+function triggerProject(key) {
+  const core = document.getElementById('core');
+  core.classList.remove('active');
+  core.style.display = 'none';
+  document.getElementById('status-bar').textContent = `LOADING / ${key.toUpperCase()}...`;
+  if (key === 'ezra') runEzra();
+  else if (key === 'smash') runSmash();
+  else if (key === 'bot') runBot();
+}
+
+function goCore(from) {
+  // limpia todas las pantallas relacionadas con cada sistema
+  const allPages = [
+    'ezra-page', 'ezra-web', 'ezra-hub',
+    'smash-page', 'smash-order', 'smash-hub',
+    'bot-page'
+  ];
+  allPages.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('active'); el.style.display = 'none'; }
+  });
+  // pausa todos los iframes
+  ['ezra-iframe', 'ezra-manifest-iframe', 'smash-manifest-iframe', 'smash-order-iframe'].forEach(id => {
+    const f = document.getElementById(id);
+    if (f) f.src = 'about:blank';
+  });
+  document.getElementById('core').style.display = 'flex';
+  requestAnimationFrame(() => document.getElementById('core').classList.add('active'));
+  document.getElementById('status-bar').textContent = 'SYSTEM / ACTIVE — EROSLAB CORE';
+}
+
+// Helper: load iframe and check if file actually exists
+function loadIframeWithCheck(iframeId, src, fallbackSelector) {
+  const iframe = document.getElementById(iframeId);
+  const frame = iframe.parentElement;
+  const fallback = frame.querySelector(fallbackSelector);
+  if (fallback) fallback.classList.remove('show');
+  iframe.src = src;
+
+  iframe.onload = function() {
+    try {
+      const doc = iframe.contentDocument;
+      // si no hay doc o body vacío → archivo no encontrado
+      if (!doc || !doc.body || doc.body.children.length === 0) {
+        if (iframe.src !== 'about:blank' && fallback) fallback.classList.add('show');
+      } else {
+        if (fallback) fallback.classList.remove('show');
+      }
+    } catch(e) {
+      // cross-origin → asumimos que cargó bien
+      if (fallback) fallback.classList.remove('show');
+    }
+  };
+}
+
+// ===== EZRA TRANSITION =====
+function runEzra() {
+  const trans = document.getElementById('ezra-trans');
+  const thread = document.getElementById('ezra-thread');
+  const t2 = document.getElementById('ezra-thread-2');
+  const t3 = document.getElementById('ezra-thread-3');
+  const vign = document.getElementById('ezra-vign');
+  const letters = document.getElementById('ezra-letters');
+  const whisper = document.getElementById('ezra-whisper');
+  const spans = letters.querySelectorAll('span');
+  const mistCanvas = document.getElementById('ezra-mist');
+  const mCtx = mistCanvas.getContext('2d');
+  mistCanvas.width = window.innerWidth; mistCanvas.height = window.innerHeight;
+
+  // reset
+  [thread, t2, t3].forEach(t => { t.style.transition = 'none'; t.style.width = '0'; });
+  vign.style.transition = 'none'; vign.style.opacity = '0';
+  letters.style.transition = 'none'; letters.style.opacity = '0';
+  spans.forEach(s => { s.style.transition = 'none'; s.style.transform = 'translateY(80px) rotateX(50deg)'; s.style.opacity = '0'; });
+  whisper.style.transition = 'none'; whisper.style.opacity = '0'; whisper.style.transform = 'translateX(-50%) translateY(20px)';
+
+  trans.style.display = 'block';
+  trans.style.opacity = '1';
+
+  // Mist particles
+  let mistParticles = [];
+  for (let i = 0; i < 60; i++) {
+    mistParticles.push({
+      x: Math.random() * mistCanvas.width,
+      y: Math.random() * mistCanvas.height,
+      r: Math.random() * 80 + 40,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.2,
+      a: Math.random() * 0.04 + 0.01
+    });
+  }
+  let mistRunning = true;
+  function drawMist() {
+    if (!mistRunning) return;
+    mCtx.clearRect(0,0,mistCanvas.width, mistCanvas.height);
+    mistParticles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -100) p.x = mistCanvas.width + 100;
+      if (p.x > mistCanvas.width + 100) p.x = -100;
+      const g = mCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+      g.addColorStop(0, `rgba(192,21,26,${p.a})`);
+      g.addColorStop(1, 'rgba(192,21,26,0)');
+      mCtx.fillStyle = g;
+      mCtx.fillRect(p.x - p.r, p.y - p.r, p.r*2, p.r*2);
+    });
+    requestAnimationFrame(drawMist);
+  }
+  drawMist();
+
+  // Threads draw
+  setTimeout(() => {
+    thread.style.transition = 'width 1.4s cubic-bezier(0.5,0,0.2,1)'; thread.style.width = '100%';
+    t2.style.transition = 'width 1.6s cubic-bezier(0.5,0,0.2,1) 0.2s'; t2.style.width = '100%';
+    t3.style.transition = 'width 1.6s cubic-bezier(0.5,0,0.2,1) 0.4s'; t3.style.width = '100%';
+  }, 50);
+
+  // Vignette + letters
+  setTimeout(() => {
+    vign.style.transition = 'opacity 1.5s ease'; vign.style.opacity = '1';
+    letters.style.transition = 'opacity 0.6s ease'; letters.style.opacity = '1';
+    spans.forEach((s, i) => {
+      s.style.transition = `transform 1s cubic-bezier(0.2,0.7,0.2,1) ${i * 0.18}s, opacity 0.8s ease ${i * 0.18}s`;
+      s.style.transform = 'translateY(0) rotateX(0deg)';
+      s.style.opacity = '1';
+    });
+  }, 700);
+
+  // Whisper
+  setTimeout(() => {
+    whisper.style.transition = 'opacity 1s ease, transform 1s ease';
+    whisper.style.opacity = '1';
+    whisper.style.transform = 'translateX(-50%) translateY(0)';
+  }, 1900);
+
+  // Fade
+  setTimeout(() => {
+    trans.style.transition = 'opacity 0.8s ease, filter 0.8s ease';
+    trans.style.opacity = '0';
+    trans.style.filter = 'blur(6px)';
+  }, 3500);
+
+  setTimeout(() => {
+    mistRunning = false;
+    trans.style.display = 'none'; trans.style.opacity = '1'; trans.style.filter = 'none';
+    const hub = document.getElementById('ezra-hub');
+    hub.style.display = 'flex';
+    requestAnimationFrame(() => hub.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / EZRA · SELECT SYSTEM';
+  }, 4400);
+}
+
+// ===== EZRA SUB-NAV =====
+function openEzraSection(type) {
+  const hub = document.getElementById('ezra-hub');
+  hub.classList.remove('active');
+  hub.style.display = 'none';
+  if (type === 'manifest') {
+    const page = document.getElementById('ezra-page');
+    loadIframeWithCheck('ezra-manifest-iframe', 'ezra_manifest.html', '.ezra-web-fallback');
+    page.style.display = 'flex';
+    requestAnimationFrame(() => page.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / EZRA · ANÁLISIS';
+  } else if (type === 'web') {
+    const web = document.getElementById('ezra-web');
+    loadIframeWithCheck('ezra-iframe', 'ezra_collection.html', '.ezra-web-fallback');
+    web.style.display = 'flex';
+    requestAnimationFrame(() => web.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / EZRA · WEB · LIVE';
+  }
+}
+
+function goEzraHub() {
+  ['ezra-page', 'ezra-web'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  ['ezra-iframe', 'ezra-manifest-iframe'].forEach(id => {
+    const f = document.getElementById(id);
+    if (f) f.src = 'about:blank';
+  });
+  const hub = document.getElementById('ezra-hub');
+  hub.style.display = 'flex';
+  requestAnimationFrame(() => hub.classList.add('active'));
+  document.getElementById('status-bar').textContent = 'SYSTEM / EZRA · SELECT SYSTEM';
+}
+
+// ===== SMASH TRANSITION (playful, neon, nocturnal) =====
+function runSmash() {
+  const trans = document.getElementById('smash-trans');
+  const flash = document.getElementById('smash-flash');
+  const stamp = document.getElementById('smash-stamp');
+  const grid = document.getElementById('smash-grid');
+  const radial = document.getElementById('smash-radial');
+  const noise = document.getElementById('smash-noise');
+  const bars = document.querySelectorAll('#smash-bars .smash-bar');
+
+  // reset
+  flash.style.transition = 'none'; flash.style.opacity = '0';
+  stamp.style.transition = 'none';
+  stamp.style.transform = 'translate(-50%, -50%) scale(0, 1.4)';
+  stamp.style.opacity = '0';
+  stamp.classList.remove('flicker');
+  grid.style.transition = 'none'; grid.style.opacity = '0';
+  radial.style.transition = 'none'; radial.style.opacity = '0';
+  noise.style.transition = 'none'; noise.style.opacity = '0';
+  bars.forEach(b => { b.style.transition = 'none'; b.style.transform = 'scaleX(0)'; });
+
+  trans.style.display = 'block'; trans.style.opacity = '1';
+
+  // Bars sweep in fast and playful
+  setTimeout(() => {
+    bars.forEach((b, i) => {
+      b.style.transition = `transform 0.35s cubic-bezier(0.5,0,0.2,1) ${i * 0.04}s`;
+      b.style.transform = 'scaleX(1)';
+    });
+  }, 50);
+
+  // Bars sweep out
+  setTimeout(() => {
+    bars.forEach((b, i) => {
+      b.style.transition = `transform 0.3s cubic-bezier(0.5,0,0.2,1) ${i * 0.03}s`;
+      b.style.transform = 'scaleX(0)';
+    });
+  }, 400);
+
+  // Soft red wash (not violent)
+  setTimeout(() => {
+    flash.style.transition = 'opacity 0.2s ease';
+    flash.style.opacity = '0.35';
+  }, 700);
+  setTimeout(() => {
+    flash.style.transition = 'opacity 0.5s ease';
+    flash.style.opacity = '0';
+  }, 900);
+
+  // Grid + ambience appear (warm, diner-like)
+  setTimeout(() => {
+    grid.style.transition = 'opacity 0.6s ease'; grid.style.opacity = '1';
+    radial.style.transition = 'opacity 0.8s ease'; radial.style.opacity = '1';
+    noise.style.transition = 'opacity 0.5s ease'; noise.style.opacity = '0.12';
+  }, 850);
+
+  // SMASH effect: stamp gets squished horizontally first, then bounces wide
+  setTimeout(() => {
+    stamp.style.transition = 'transform 0.18s cubic-bezier(0.4,0,0.2,1), opacity 0.1s ease';
+    stamp.style.transform = 'translate(-50%, -50%) scale(1.3, 0.6)';
+    stamp.style.opacity = '1';
+  }, 850);
+
+  // Bounce back to normal (squish-stretch)
+  setTimeout(() => {
+    stamp.style.transition = 'transform 0.22s cubic-bezier(0.3,1.6,0.5,1)';
+    stamp.style.transform = 'translate(-50%, -50%) scale(0.92, 1.08)';
+  }, 1050);
+
+  // Settle
+  setTimeout(() => {
+    stamp.style.transition = 'transform 0.25s cubic-bezier(0.2,0.8,0.4,1)';
+    stamp.style.transform = 'translate(-50%, -50%) scale(1, 1)';
+    stamp.classList.add('flicker');
+  }, 1280);
+
+  // Fade out to page
+  setTimeout(() => {
+    trans.style.transition = 'opacity 0.5s ease'; trans.style.opacity = '0';
+  }, 2400);
+
+  setTimeout(() => {
+    trans.style.display = 'none'; trans.style.opacity = '1';
+    const hub = document.getElementById('smash-hub');
+    hub.style.display = 'flex';
+    requestAnimationFrame(() => hub.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / SMASH · SELECT SYSTEM';
+  }, 2950);
+}
+
+// ===== SMASH SUB-NAV =====
+function openSmashSection(type) {
+  const hub = document.getElementById('smash-hub');
+  hub.classList.remove('active');
+  hub.style.display = 'none';
+  if (type === 'manifest') {
+    const page = document.getElementById('smash-page');
+    loadIframeWithCheck('smash-manifest-iframe', 'smash_manifest.html', '.smash-iframe-fallback');
+    page.style.display = 'flex';
+    requestAnimationFrame(() => page.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / SMASH · ANÁLISIS';
+  } else if (type === 'order') {
+    const order = document.getElementById('smash-order');
+    loadIframeWithCheck('smash-order-iframe', 'smash_order.html', '.smash-iframe-fallback');
+    order.style.display = 'flex';
+    requestAnimationFrame(() => order.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / SMASH · WEB · LIVE';
+  }
+}
+
+function goSmashHub() {
+  ['smash-page', 'smash-order'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  ['smash-manifest-iframe', 'smash-order-iframe'].forEach(id => {
+    const f = document.getElementById(id);
+    if (f) f.src = 'about:blank';
+  });
+  const hub = document.getElementById('smash-hub');
+  hub.style.display = 'flex';
+  requestAnimationFrame(() => hub.classList.add('active'));
+  document.getElementById('status-bar').textContent = 'SYSTEM / SMASH · SELECT SYSTEM';
+}
+
+// ===== BOT TRANSITION =====
+function runBot() {
+  const trans = document.getElementById('bot-trans');
+  const terminal = document.getElementById('bot-terminal');
+  const lines = terminal.querySelectorAll('.bot-line');
+  const final = document.getElementById('bot-final');
+  const frame = document.getElementById('bot-frame');
+  const tr = document.getElementById('bot-tr');
+  const bl = document.getElementById('bot-bl');
+  const stripTop = document.getElementById('bot-strip-top');
+  const stripBot = document.getElementById('bot-strip-bot');
+  const canvas = document.getElementById('bot-grid-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+  // Strip data
+  const hexes = [];
+  for (let i = 0; i < 80; i++) {
+    hexes.push(Math.floor(Math.random() * 256).toString(16).padStart(2,'0').toUpperCase());
+  }
+  stripTop.textContent = hexes.join(' ');
+  stripBot.textContent = hexes.slice().reverse().join(' ');
+
+  // reset
+  terminal.style.transition = 'none'; terminal.style.opacity = '0';
+  lines.forEach(l => { l.style.transition = 'none'; l.style.opacity = '0'; });
+  final.style.transition = 'none'; final.style.opacity = '0'; final.style.transform = 'translate(-50%, -50%) scale(0.96)';
+  frame.style.transition = 'none'; frame.style.opacity = '0';
+  tr.style.transition = 'none'; tr.style.opacity = '0';
+  bl.style.transition = 'none'; bl.style.opacity = '0';
+  stripTop.style.transition = 'none'; stripTop.style.opacity = '0';
+  stripBot.style.transition = 'none'; stripBot.style.opacity = '0';
+
+  trans.style.display = 'block'; trans.style.opacity = '1';
+
+  // Grid converging
+  let progress = 0;
+  let drawing = true;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+
+  function draw() {
+    if (!drawing) return;
+    progress += 0.012;
+    ctx.fillStyle = 'rgba(8,8,8,0.18)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const lineCount = 20;
+    for (let i = 0; i < lineCount; i++) {
+      const t = (i / lineCount + progress * 0.3) % 1;
+      const eased = t * t;
+      const dist = eased * Math.max(canvas.width, canvas.height) * 0.6;
+      const alpha = (1 - t) * 0.4;
+      ctx.strokeStyle = `rgba(43,130,240,${alpha})`;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(cx - dist, cy); ctx.lineTo(cx - dist - 40, cy);
+      ctx.moveTo(cx + dist, cy); ctx.lineTo(cx + dist + 40, cy);
+      ctx.moveTo(cx, cy - dist); ctx.lineTo(cx, cy - dist - 40);
+      ctx.moveTo(cx, cy + dist); ctx.lineTo(cx, cy + dist + 40);
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(43,130,240,${alpha * 0.5})`;
+      ctx.beginPath();
+      ctx.rect(cx - dist, cy - dist * 0.6, dist * 2, dist * 1.2);
+      ctx.stroke();
+    }
+
+    // floating hex chars
+    if (Math.random() > 0.4) {
+      ctx.fillStyle = `rgba(43,130,240,${Math.random() * 0.5})`;
+      ctx.font = '10px JetBrains Mono, monospace';
+      const ch = Math.random() > 0.5 ? Math.floor(Math.random() * 16).toString(16).toUpperCase() : (Math.random() > 0.5 ? '1' : '0');
+      ctx.fillText(ch, Math.random() * canvas.width, Math.random() * canvas.height);
+    }
+
+    // candle ticks at bottom
+    ctx.strokeStyle = 'rgba(43,130,240,0.22)';
+    ctx.lineWidth = 1;
+    const baseY = canvas.height - 70;
+    for (let x = 20; x < canvas.width; x += 10) {
+      const h = Math.sin((x + progress * 100) * 0.05) * 14 + Math.random() * 8;
+      ctx.beginPath(); ctx.moveTo(x, baseY - h); ctx.lineTo(x, baseY + h); ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // HUD frame
+  setTimeout(() => {
+    frame.style.transition = 'opacity 0.6s ease'; frame.style.opacity = '1';
+    tr.style.transition = 'opacity 0.6s ease 0.2s'; tr.style.opacity = '1';
+    bl.style.transition = 'opacity 0.6s ease 0.4s'; bl.style.opacity = '1';
+    stripTop.style.transition = 'opacity 0.6s ease 0.3s'; stripTop.style.opacity = '1';
+    stripBot.style.transition = 'opacity 0.6s ease 0.5s'; stripBot.style.opacity = '1';
+  }, 100);
+
+  // Terminal
+  setTimeout(() => {
+    terminal.style.transition = 'opacity 0.4s ease'; terminal.style.opacity = '1';
+  }, 300);
+
+  lines.forEach(l => {
+    const delay = parseInt(l.dataset.d) + 400;
+    setTimeout(() => {
+      l.style.transition = 'opacity 0.3s ease'; l.style.opacity = '1';
+    }, delay);
+  });
+
+  // Terminal fade, final appear
+  setTimeout(() => {
+    terminal.style.transition = 'opacity 0.6s ease'; terminal.style.opacity = '0';
+  }, 2900);
+
+  setTimeout(() => {
+    final.style.transition = 'opacity 1s ease, transform 1s cubic-bezier(0.2,0.7,0.2,1)';
+    final.style.opacity = '1';
+    final.style.transform = 'translate(-50%, -50%) scale(1)';
+  }, 3100);
+
+  setTimeout(() => {
+    trans.style.transition = 'opacity 0.7s ease'; trans.style.opacity = '0';
+  }, 4600);
+
+  setTimeout(() => {
+    drawing = false;
+    trans.style.display = 'none'; trans.style.opacity = '1';
+    const page = document.getElementById('bot-page');
+    page.style.display = 'block';
+    requestAnimationFrame(() => page.classList.add('active'));
+    document.getElementById('status-bar').textContent = 'SYSTEM / EZRA BOT · 3 AGENTES';
+  }, 5300);
+}
+</script>
+</body>
+</html>
