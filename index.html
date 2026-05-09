@@ -1412,22 +1412,18 @@ function loadIframeWithCheck(iframeId, src, fallbackSelector) {
   const frame = iframe.parentElement;
   const fallback = frame.querySelector(fallbackSelector);
   if (fallback) fallback.classList.remove('show');
-  iframe.src = src;
 
-  iframe.onload = function() {
-    try {
-      const doc = iframe.contentDocument;
-      // si no hay doc o body vacío → archivo no encontrado
-      if (!doc || !doc.body || doc.body.children.length === 0) {
-        if (iframe.src !== 'about:blank' && fallback) fallback.classList.add('show');
+  fetch(src, { method: 'HEAD' })
+    .then(res => {
+      if (res.ok) {
+        iframe.src = src;
       } else {
-        if (fallback) fallback.classList.remove('show');
+        if (fallback) fallback.classList.add('show');
       }
-    } catch(e) {
-      // cross-origin → asumimos que cargó bien
-      if (fallback) fallback.classList.remove('show');
-    }
-  };
+    })
+    .catch(() => {
+      if (fallback) fallback.classList.add('show');
+    });
 }
 
 // ===== EZRA TRANSITION =====
